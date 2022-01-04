@@ -184,5 +184,259 @@ def options():
         pygame.display.flip()
 
 
+class Grass(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(grass_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Capcan(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(capcans_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x + 2, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Boxes(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(boxes_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(coins_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x + 12, tile_height * pos_y + 10)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Healka(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(health_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Pit(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(pit_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Pila(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(pila_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        if pygame.sprite.spritecollideany(self, player_group):
+            hp[0] -= 1
+        if pygame.sprite.spritecollideany(self, boxes_group):
+            if moving_pila[0] == 'Right':
+                moving_pila[0] = 'Left'
+            elif moving_pila[0] == 'Left':
+                moving_pila[0] = 'Right'
+
+        if moving_pila[0] == 'Right':
+            self.rect.x += 2
+        else:
+            self.rect.x -= 2
+
+
+class Shield(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(shield_group, all_sprites)
+        self.image = tile_images[tyle_type]
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x + 12, tile_height * pos_y + 8)
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+class Player(pygame.sprite.Sprite):
+    global hp
+
+    def __init__(self, pos_x, pos_y):
+        super().__init__(player_group, all_sprites)
+        self.image = player_image
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x + 15, tile_height * pos_y + 5)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self, x, y, napravlenie):
+        if pygame.sprite.spritecollideany(self, boxes_group):
+            if napravlenie == 'left':
+                player.rect.x += 8
+            elif napravlenie == 'right':
+                player.rect.x -= 8
+            elif napravlenie == 'down':
+                player.rect.y -= 8
+            elif napravlenie == 'up':
+                player.rect.y += 8
+        if pygame.sprite.spritecollide(self, capcans_group, True):
+            if shields_kolvo[0] == 0:
+                if game_sounding[0] is True:
+                    capcan_sound.play()
+                hp[0] -= 10
+            else:
+                if game_sounding[0] is True:
+                    shield_cancel.play()
+                shields_kolvo[0] -= 1
+        if pygame.sprite.spritecollide(self, coins_group, True):
+            if game_sounding[0] is True:
+                coin_claim.play()
+            coin_kolvo[0] += 1
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo[0] != 0:
+            running[0] = False
+            if game_sounding[0] is True:
+                nextLevel_sound.play()
+        if pygame.sprite.spritecollide(self, shield_group, True):
+            shields_kolvo[0] += 1
+            if game_sounding[0] is True:
+                shield_claim.play()
+        if pygame.sprite.spritecollide(self, health_group, True):
+            hp[0] = 100
+
+
+def generate_level(level):
+    new_player, x, y = None, None, None
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            if level[y][x] == '.':
+                Grass('empty', x, y)
+            elif level[y][x] == '#':
+                Grass('empty', x, y)
+                Boxes('wall', x, y)
+            elif level[y][x] == '@':
+                Grass('empty', x, y)
+                new_player = Player(x, y)
+            elif level[y][x] == '$':
+                Grass('empty', x, y)
+                Capcan('capcan', x, y)
+            elif level[y][x] == '*':
+                Grass('empty', x, y)
+                Coin('coin', x, y)
+            elif level[y][x] == '^':
+                Grass('empty', x, y)
+                Pit('pit', x, y)
+            elif level[y][x] == '!':
+                Grass('empty', x, y)
+                Shield('shield', x, y)
+            elif level[y][x] == 'p':
+                Grass('empty', x, y)
+                Pila('pila', x, y)
+            elif level[y][x] == 'h':
+                Grass('empty', x, y)
+                Healka('healka', x, y)
+    return new_player, x, y
+
+
+class Camera:
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    def update(self, target):
+        self.dx = width // 2 - target.rect.x - target.rect.w // 2
+        self.dy = height // 2 - target.rect.y - target.rect.h // 2
+
+
 if __name__ == '__main__':
+    hp, coin_kolvo, shields_kolvo = [100], [0], [0]
+    pygame.display.set_caption('ExitOn')
+    camera = Camera()
+
+    x_gameOver, y_gameOver = (-450, 0)
+
+    all_sprites = pygame.sprite.Group()
+    grass_group = pygame.sprite.Group()
+    boxes_group = pygame.sprite.Group()
+    capcans_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    coins_group = pygame.sprite.Group()
+    pit_group = pygame.sprite.Group()
+    shield_group = pygame.sprite.Group()
+    pila_group = pygame.sprite.Group()
+    health_group = pygame.sprite.Group()
+
     game.menu()
+    fon, v, clock = pygame.image.load('data/background_for_game.jpg'), 10, pygame.time.Clock()
+    font = pygame.font.Font(None, 25)
+    player, level_x, level_y = generate_level(load_level('level_3.txt'))
+    start = True
+
+    while running[0] is True:
+        pygame.display.set_caption('Level1')
+        ticking = clock.tick() * 10 / 100
+        text = font.render(f"Your HP: {hp[0]}; Coin: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                           True, (100, 255, 100))
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:  # если событие нажатие клавиши
+                if event.key == pygame.K_ESCAPE:
+                    pygame.display.set_caption('ExitOn')  # если клавиша Esc
+                    game.menu()
+        if keys[pygame.K_LEFT]:
+            player.rect.x -= 8
+            player_group.update(player.rect.x, player.rect.y, 'left')
+        if keys[pygame.K_UP]:
+            player.rect.y -= 8
+            player_group.update(player.rect.x, player.rect.y, 'up')
+        if keys[pygame.K_RIGHT]:
+            player.rect.x += 8
+            player_group.update(player.rect.x, player.rect.y, 'right')
+        if keys[pygame.K_DOWN]:
+            player.rect.y += 8
+            player_group.update(player.rect.x, player.rect.y, 'down')
+        if hp[0] > 0:
+            screen.blit(
+                pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
+                (0, 0))
+            camera.update(player)
+            for sprite in all_sprites:
+                camera.apply(sprite)
+            grass_group.draw(screen)
+            boxes_group.draw(screen)
+            capcans_group.draw(screen)
+            coins_group.draw(screen)
+            pit_group.draw(screen)
+            shield_group.draw(screen)
+            player_group.draw(screen)
+            pila_group.draw(screen)
+            pila_group.update()
+            health_group.draw(screen)
+            pygame.draw.rect(screen, pygame.Color('purple'), (8, 8, 270, 20))
+            screen.blit(text, (10, 10))
+            clock.tick(100)
+            # all_sprites.draw(screen)
+        else:
+            game_over_sound.play()
+            screen.blit(game_over, (x_gameOver, y_gameOver))
+            if x_gameOver >= 0:
+                x_gameOver = x_gameOver
+            else:
+                x_gameOver += clock.tick() * 75 / 350
+        pygame.display.flip()

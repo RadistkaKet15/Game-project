@@ -17,6 +17,7 @@ shield_cancel = pygame.mixer.Sound('sounds/minus_shield.wav')
 nextLevel_sound = pygame.mixer.Sound('sounds/next_level.wav')
 tile_width = tile_height = 75
 game_sounding, moving_pila = [True], ['Right']
+color = ['Green']
 
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
@@ -32,8 +33,8 @@ tile_images = {
     'shield': pygame.transform.scale(pygame.image.load('data/Shield.png'),
                                      (tile_width - 20, tile_height - 10)),
     'car': pygame.transform.scale(pygame.image.load('data/police_car.png'),
-                                   (tile_width + 50, tile_height + 20)),
-    'healka': pygame.transform.scale(pygame.image.load('data/Trap_devil.png'),
+                                  (tile_width + 50, tile_height + 20)),
+    'healka': pygame.transform.scale(pygame.image.load('data/Aptechka.png'),
                                      (tile_width, tile_height))}
 
 player_image = pygame.transform.scale(pygame.image.load('data/robber.png'), (120, 120))
@@ -191,15 +192,20 @@ def options():
                     player_image = pygame.transform.scale(pygame.image.load('data/robber.png'),
                                                           (120, 120))
                     tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/coin.png'),
-                                   (tile_width - 20, tile_height - 20))
-                    tile_images['car'] = pygame.transform.scale(pygame.image.load('data/police_car.png'),
-                                   (tile_width + 20, tile_height + 20))
+                                                                 (
+                                                                     tile_width - 20,
+                                                                     tile_height - 20))
+                    tile_images['car'] = pygame.transform.scale(
+                        pygame.image.load('data/police_car.png'),
+                        (tile_width + 20, tile_height + 20))
 
                 if 400 < mp[0] < 550 and 200 < mp[1] < 350:
                     choice = 2
-                    player_image = pygame.transform.scale(pygame.image.load('data/men.png'), (100, 100))
-                    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/bottle.png'),
-                                                                 (tile_width - 20, tile_height - 20))
+                    player_image = pygame.transform.scale(pygame.image.load('data/men.png'),
+                                                          (100, 100))
+                    tile_images['coin'] = pygame.transform.scale(
+                        pygame.image.load('data/bottle.png'),
+                        (tile_width - 20, tile_height - 20))
                     tile_images['car'] = pygame.transform.scale(pygame.image.load('data/car.png'),
                                                                 (tile_width + 20, tile_height + 20))
             if keys[pygame.K_ESCAPE]:
@@ -418,8 +424,9 @@ if __name__ == '__main__':
     while running[0] is True:
         pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
-        text = font.render(f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
-                           True, (100, 255, 100))
+        text = font.render(
+            f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+            True, (100, 255, 100))
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -440,7 +447,9 @@ if __name__ == '__main__':
             player.rect.y += 8
             player_group.update(player.rect.x, player.rect.y, 'down')
         if hp[0] > 0:
-            screen.blit(pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size), (0, 0))
+            screen.blit(
+                pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
+                (0, 0))
             camera.update(player)
             for sprite in all_sprites:
                 camera.apply(sprite)
@@ -454,12 +463,25 @@ if __name__ == '__main__':
             pila_group.draw(screen)
             pila_group.update()
             health_group.draw(screen)
-            pygame.draw.rect(screen, pygame.Color('purple'), (8, 8, 270, 20))
+            pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 290, 20))
+            if hp[0] <= 25:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('red'))
+            elif hp[0] <= 50:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('orange'))
+            elif hp[0] <= 75:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)
             # all_sprites.draw(screen)
         else:
-            game_over_sound.play()
+            if game_sounding[0] is True:
+                game_over_sound.play()
             screen.blit(game_over, (x_gameOver, y_gameOver))
             if x_gameOver >= 0:
                 x_gameOver = x_gameOver

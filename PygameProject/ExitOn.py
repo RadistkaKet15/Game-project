@@ -174,6 +174,7 @@ def options():
     global player_image
     while done:
         pygame.display.set_caption('Options')
+        # screen.blit(pygame.transform.scale(pygame.image.load('data/optionfon.jpg'), size), (0, 0))
         screen.fill(pygame.Color('black'))
         player1 = pygame.transform.scale(pygame.image.load('data/robber.png'), (150, 150))
         screen.blit(player1, (200, 200))

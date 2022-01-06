@@ -19,7 +19,7 @@ tile_width = tile_height = 75
 game_sounding, moving_pila = [True], ['Right']
 coin_kolvo_mustClaim = [0]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
-                                                          30), pygame.Color('white')
+                                                         30), pygame.Color('white')
 
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
@@ -170,9 +170,9 @@ def help():
                     (110, 210))
         screen.blit(font_helping_card.render('Target:', True, color_helping_card), (340, 260))
         screen.blit(font_helping_card.render('The target of our game is to claim all', True,
-                                              color_helping_card), (10, 310))
+                                             color_helping_card), (10, 310))
         screen.blit(font_helping_card.render('coins from the level and find an exit from', True,
-                                              color_helping_card), (10, 360))
+                                             color_helping_card), (10, 360))
         screen.blit(
             font_helping_card.render('it... But be very accurate ^-^', True, color_helping_card),
             (10, 410))
@@ -460,7 +460,7 @@ if __name__ == '__main__':
         pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
         text = font.render(
-            f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+            f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
             True, (100, 255, 100))
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -500,7 +500,7 @@ if __name__ == '__main__':
             pila_group.draw(screen)
             pila_group.update()
             health_group.draw(screen)
-            pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 290, 20))
+            pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
                 text = font.render(
                     f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",

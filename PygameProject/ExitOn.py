@@ -17,7 +17,9 @@ shield_cancel = pygame.mixer.Sound('sounds/minus_shield.wav')
 nextLevel_sound = pygame.mixer.Sound('sounds/next_level.wav')
 tile_width = tile_height = 75
 game_sounding, moving_pila = [True], ['Right']
-color = ['Green']
+coin_kolvo_mustClaim = [0]
+font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
+                                                          30), pygame.Color('white')
 
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
@@ -148,7 +150,7 @@ def help():
 
     while done:
         pygame.display.set_caption('Help')
-        fon = pygame.transform.scale(pygame.image.load('data/optionfon.jpg'), (size))
+        fon = pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), (size))
         screen.blit(fon, (0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -157,14 +159,25 @@ def help():
                 if event.key == pygame.K_ESCAPE:
                     done = False
                     pygame.display.set_caption('ExitOn')
-        screen.blit(font_menu.render('движение вниз - стрелка вниз', 1, (0, 0, 0)), (110, 100))
-        screen.blit(font_menu.render('движение вверх - стрелка вверх', 1, (0, 0, 0)), (110, 160))
-        screen.blit(font_menu.render('движение влево - стрелка влево', 1, (0, 0, 0)), (110, 220))
-        screen.blit(font_menu.render('движение вправо - стрелка вправо', 1, (0, 0, 0)),
-                    (110, 280))
-        screen.blit(font_menu.render('выход в меню - ESC', 1, (0, 0, 0)), (180, 450))
-        screen.blit(screen, (0, 30))  # прорисовка на окне экрана для меню
-
+        screen.blit(font_helping_card.render('Control:', True, color_helping_card), (340, 10))
+        screen.blit(font_helping_card.render('Go down - down arrow', True, color_helping_card),
+                    (110, 60))
+        screen.blit(font_helping_card.render('Go up - up arrow', True, color_helping_card),
+                    (110, 110))
+        screen.blit(font_helping_card.render('Go right - right arrow', True, color_helping_card),
+                    (110, 160))
+        screen.blit(font_helping_card.render('Go left - left arrow', True, color_helping_card),
+                    (110, 210))
+        screen.blit(font_helping_card.render('Target:', True, color_helping_card), (340, 260))
+        screen.blit(font_helping_card.render('The target of our game is to claim all', True,
+                                              color_helping_card), (10, 310))
+        screen.blit(font_helping_card.render('coins from the level and find an exit from', True,
+                                              color_helping_card), (10, 360))
+        screen.blit(
+            font_helping_card.render('it... But be very accurate ^-^', True, color_helping_card),
+            (10, 410))
+        screen.blit(font_helping_card.render('Exit help card - ESC', True, color_helping_card),
+                    (220, 500))
         pygame.display.flip()  # всё отобразить
 
 
@@ -175,8 +188,7 @@ def options():
     global player_image
     while done:
         pygame.display.set_caption('Options')
-        # screen.blit(pygame.transform.scale(pygame.image.load('data/optionfon.jpg'), size), (0, 0))
-        screen.fill(pygame.Color('black'))
+        screen.blit(pygame.image.load('data/background_for_game.jpg'), (0, 0))
         player1 = pygame.transform.scale(pygame.image.load('data/robber.png'), (150, 150))
         screen.blit(player1, (200, 200))
         player2 = pygame.transform.scale(pygame.image.load('data/men.png'), (150, 150))
@@ -214,7 +226,7 @@ def options():
             pygame.draw.rect(screen, (255, 0, 0), (160, 160, 230, 220), 4)
         if choice == 2:
             pygame.draw.rect(screen, (255, 0, 0), (420, 160, 210, 220), 4)
-        screen.blit(font_menu.render('Выбери персонажа', 1, (255, 255, 255)), (220, 50))
+        screen.blit(font_menu.render('Choose your hero...', 1, (255, 255, 255)), (220, 50))
         pygame.display.flip()
 
 
@@ -306,8 +318,6 @@ class Shield(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-    global hp
-
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.image = player_image
@@ -337,8 +347,9 @@ class Player(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self, coins_group, True):
             if game_sounding[0] is True:
                 coin_claim.play()
-            coin_kolvo[0] += 1
-        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo[0] != 0:
+            coin_kolvo_claim[0] += 1
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == \
+                coin_kolvo_mustClaim[0]:
             running[0] = False
             if game_sounding[0] is True:
                 nextLevel_sound.play()
@@ -389,12 +400,12 @@ def generate_level(level):
             elif level[y][x] == '*':
                 Land('empty', x, y)
                 Coin('coin', x, y)
+                coin_kolvo_mustClaim[0] += 1
             elif level[y][x] == '^':
                 Land('empty', x, y)
                 AnimatedSprites(pygame.transform.scale(
                     pygame.transform.flip(pygame.image.load('data/exit_portal.png'), True, False),
-                    (120, 120)), 4, 1, x, y)
-                print(x, y)
+                    (200, 140)), 4, 1, x, y)
             elif level[y][x] == '!':
                 Land('empty', x, y)
                 Shield('shield', x, y)
@@ -422,7 +433,7 @@ class Camera:
 
 
 if __name__ == '__main__':
-    hp, coin_kolvo, shields_kolvo = [100], [0], [0]
+    hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
     pygame.display.set_caption('ExitOn')
     camera = Camera()
 
@@ -449,7 +460,7 @@ if __name__ == '__main__':
         pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
         text = font.render(
-            f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+            f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
             True, (100, 255, 100))
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -481,8 +492,9 @@ if __name__ == '__main__':
             boxes_group.draw(screen)
             capcans_group.draw(screen)
             coins_group.draw(screen)
-            pit_group.draw(screen)
-            pit_group.update()
+            if coin_kolvo_claim[0] == coin_kolvo_mustClaim[0]:
+                pit_group.draw(screen)
+                pit_group.update()
             shield_group.draw(screen)
             player_group.draw(screen)
             pila_group.draw(screen)
@@ -491,15 +503,15 @@ if __name__ == '__main__':
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 290, 20))
             if hp[0] <= 25:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('red'))
             elif hp[0] <= 50:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('orange'))
             elif hp[0] <= 75:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)

@@ -350,6 +350,27 @@ class Player(pygame.sprite.Sprite):
             hp[0] = 100
 
 
+class AnimatedSprites(pygame.sprite.Sprite):
+    def __init__(self, sheet, columns, rows, pos_x, pos_y):
+        super(AnimatedSprites, self).__init__(pit_group, all_sprites)
+        self.frames = []
+        self.crop_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(tile_width * pos_x + 10, tile_height * pos_y + 5)
+
+    def crop_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns, sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_coords = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(frame_coords, self.rect.size)))
+
+    def update(self):
+        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+
+
 def generate_level(level):
     new_player, x, y = None, None, None
     for y in range(len(level)):
@@ -370,7 +391,10 @@ def generate_level(level):
                 Coin('coin', x, y)
             elif level[y][x] == '^':
                 Land('empty', x, y)
-                Pit('pit', x, y)
+                AnimatedSprites(pygame.transform.scale(
+                    pygame.transform.flip(pygame.image.load('data/exit_portal.png'), True, False),
+                    (120, 120)), 4, 1, x, y)
+                print(x, y)
             elif level[y][x] == '!':
                 Land('empty', x, y)
                 Shield('shield', x, y)
@@ -458,6 +482,7 @@ if __name__ == '__main__':
             capcans_group.draw(screen)
             coins_group.draw(screen)
             pit_group.draw(screen)
+            pit_group.update()
             shield_group.draw(screen)
             player_group.draw(screen)
             pila_group.draw(screen)

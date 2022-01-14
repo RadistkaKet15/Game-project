@@ -46,6 +46,115 @@ player = None
 
 font_menu = pygame.font.SysFont('Comic Sans MS', 40)
 
+all_sprites = pygame.sprite.Group()
+grass_group = pygame.sprite.Group()
+boxes_group = pygame.sprite.Group()
+capcans_group = pygame.sprite.Group()
+player_group = pygame.sprite.Group()
+coins_group = pygame.sprite.Group()
+pit_group = pygame.sprite.Group()
+shield_group = pygame.sprite.Group()
+pila_group = pygame.sprite.Group()
+health_group = pygame.sprite.Group()
+hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
+
+
+def cleaning_group_of_sprites():
+    all_sprites.empty()
+    grass_group.empty()
+    boxes_group.empty()
+    capcans_group.empty()
+    player_group.empty()
+    coins_group.empty()
+    pit_group.empty()
+    shield_group.empty()
+    pila_group.empty()
+    health_group.empty()
+    running[0], hp, coin_kolvo_claim, shields_kolvo = True, [100], [0], [0]
+
+
+def main(level_name):
+    pygame.display.set_caption('ExitOn')
+    camera = Camera()
+
+    x_gameOver, y_gameOver = (-450, 0)
+
+    game.menu()
+    fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
+    font = pygame.font.Font(None, 25)
+    player, level_x, level_y = generate_level(load_level(level_name))
+    start = True
+
+    while running[0] is True:
+        pygame.display.set_caption('Level1')
+        ticking = clock.tick() * 10 / 100
+        text = font.render(
+            f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+            True, (100, 255, 100))
+        keys = pygame.key.get_pressed()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.KEYDOWN:  # если событие нажатие клавиши
+                if event.key == pygame.K_ESCAPE:  # если клавиша Esc
+                    game.menu()
+        if keys[pygame.K_LEFT]:
+            player.rect.x -= 8
+            player_group.update(player.rect.x, player.rect.y, 'left')
+        if keys[pygame.K_UP]:
+            player.rect.y -= 8
+            player_group.update(player.rect.x, player.rect.y, 'up')
+        if keys[pygame.K_RIGHT]:
+            player.rect.x += 8
+            player_group.update(player.rect.x, player.rect.y, 'right')
+        if keys[pygame.K_DOWN]:
+            player.rect.y += 8
+            player_group.update(player.rect.x, player.rect.y, 'down')
+        if hp[0] > 0:
+            screen.blit(
+                pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
+                (0, 0))
+            camera.update(player)
+            for sprite in all_sprites:
+                camera.apply(sprite)
+            grass_group.draw(screen)
+            boxes_group.draw(screen)
+            capcans_group.draw(screen)
+            coins_group.draw(screen)
+            if coin_kolvo_claim[0] == coin_kolvo_mustClaim[0]:
+                pit_group.draw(screen)
+                pit_group.update()
+            shield_group.draw(screen)
+            player_group.draw(screen)
+            pila_group.draw(screen)
+            pila_group.update()
+            health_group.draw(screen)
+            pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
+            if hp[0] <= 25:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('red'))
+            elif hp[0] <= 50:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('orange'))
+            elif hp[0] <= 75:
+                text = font.render(
+                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    True, pygame.Color('yellow'))
+            screen.blit(text, (10, 10))
+            clock.tick(100)
+            # all_sprites.draw(screen)
+        else:
+            if game_sounding[0] is True:
+                game_over_sound.play()
+            screen.blit(game_over, (x_gameOver, y_gameOver))
+            if x_gameOver >= 0:
+                x_gameOver = x_gameOver
+            else:
+                x_gameOver += clock.tick() * 75 / 350
+        pygame.display.flip()
+
 
 def terminate():
     pygame.quit()
@@ -432,96 +541,6 @@ class Camera:
         self.dy = height // 2 - target.rect.y - target.rect.h // 2
 
 
-if __name__ == '__main__':
-    hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
-    pygame.display.set_caption('ExitOn')
-    camera = Camera()
-
-    x_gameOver, y_gameOver = (-450, 0)
-
-    all_sprites = pygame.sprite.Group()
-    grass_group = pygame.sprite.Group()
-    boxes_group = pygame.sprite.Group()
-    capcans_group = pygame.sprite.Group()
-    player_group = pygame.sprite.Group()
-    coins_group = pygame.sprite.Group()
-    pit_group = pygame.sprite.Group()
-    shield_group = pygame.sprite.Group()
-    pila_group = pygame.sprite.Group()
-    health_group = pygame.sprite.Group()
-
-    game.menu()
-    fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
-    font = pygame.font.Font(None, 25)
-    player, level_x, level_y = generate_level(load_level('level_2.txt'))
-    start = True
-
-    while running[0] is True:
-        pygame.display.set_caption('Level1')
-        ticking = clock.tick() * 10 / 100
-        text = font.render(
-            f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
-            True, (100, 255, 100))
-        keys = pygame.key.get_pressed()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            if event.type == pygame.KEYDOWN:  # если событие нажатие клавиши
-                if event.key == pygame.K_ESCAPE:  # если клавиша Esc
-                    game.menu()
-        if keys[pygame.K_LEFT]:
-            player.rect.x -= 8
-            player_group.update(player.rect.x, player.rect.y, 'left')
-        if keys[pygame.K_UP]:
-            player.rect.y -= 8
-            player_group.update(player.rect.x, player.rect.y, 'up')
-        if keys[pygame.K_RIGHT]:
-            player.rect.x += 8
-            player_group.update(player.rect.x, player.rect.y, 'right')
-        if keys[pygame.K_DOWN]:
-            player.rect.y += 8
-            player_group.update(player.rect.x, player.rect.y, 'down')
-        if hp[0] > 0:
-            screen.blit(
-                pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
-                (0, 0))
-            camera.update(player)
-            for sprite in all_sprites:
-                camera.apply(sprite)
-            grass_group.draw(screen)
-            boxes_group.draw(screen)
-            capcans_group.draw(screen)
-            coins_group.draw(screen)
-            if coin_kolvo_claim[0] == coin_kolvo_mustClaim[0]:
-                pit_group.draw(screen)
-                pit_group.update()
-            shield_group.draw(screen)
-            player_group.draw(screen)
-            pila_group.draw(screen)
-            pila_group.update()
-            health_group.draw(screen)
-            pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
-            if hp[0] <= 25:
-                text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
-                    True, pygame.Color('red'))
-            elif hp[0] <= 50:
-                text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
-                    True, pygame.Color('orange'))
-            elif hp[0] <= 75:
-                text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
-                    True, pygame.Color('yellow'))
-            screen.blit(text, (10, 10))
-            clock.tick(100)
-            # all_sprites.draw(screen)
-        else:
-            if game_sounding[0] is True:
-                game_over_sound.play()
-            screen.blit(game_over, (x_gameOver, y_gameOver))
-            if x_gameOver >= 0:
-                x_gameOver = x_gameOver
-            else:
-                x_gameOver += clock.tick() * 75 / 350
-        pygame.display.flip()
+main('level_2.txt')
+cleaning_group_of_sprites()
+main('level_3.txt')

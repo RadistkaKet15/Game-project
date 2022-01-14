@@ -70,7 +70,7 @@ def cleaning_group_of_sprites():
     shield_group.empty()
     pila_group.empty()
     health_group.empty()
-    running[0], hp, coin_kolvo_claim, shields_kolvo = True, [100], [0], [0]
+    running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0] = True, 100, 0, 0
 
 
 def main(level_name):
@@ -78,8 +78,6 @@ def main(level_name):
     camera = Camera()
 
     x_gameOver, y_gameOver = (-450, 0)
-
-    game.menu()
     fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
     font = pygame.font.Font(None, 25)
     player, level_x, level_y = generate_level(load_level(level_name))
@@ -541,6 +539,7 @@ class Camera:
         self.dy = height // 2 - target.rect.y - target.rect.h // 2
 
 
+game.menu()
 main('level_2.txt')
 cleaning_group_of_sprites()
 main('level_3.txt')

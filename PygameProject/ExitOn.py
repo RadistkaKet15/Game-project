@@ -73,14 +73,12 @@ def cleaning_group_of_sprites():
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0] = True, 100, 0, 0
 
 
-def main(level_name):
+def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
-
     x_gameOver, y_gameOver = (-450, 0)
     fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
     font = pygame.font.Font(None, 25)
-    player, level_x, level_y = generate_level(load_level(level_name))
     start = True
 
     while running[0] is True:
@@ -540,6 +538,8 @@ class Camera:
 
 
 game.menu()
-main('level_2.txt')
+player, level_x, level_y = generate_level(load_level('level_2.txt'))
+main()
 cleaning_group_of_sprites()
-main('level_3.txt')
+player, level_x, level_y = generate_level(load_level('level_3.txt'))
+main()

@@ -16,7 +16,7 @@ shield_claim = pygame.mixer.Sound('sounds/shield.wav')
 shield_cancel = pygame.mixer.Sound('sounds/minus_shield.wav')
 nextLevel_sound = pygame.mixer.Sound('sounds/next_level.wav')
 tile_width = tile_height = 75
-game_sounding, moving_pila = [True], ['Right']
+game_sounding, moving_pila_right_side, moving_pila_left_side = [True], ['Right'], ['Left']
 coin_kolvo_mustClaim = [0]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
@@ -54,7 +54,8 @@ player_group = pygame.sprite.Group()
 coins_group = pygame.sprite.Group()
 pit_group = pygame.sprite.Group()
 shield_group = pygame.sprite.Group()
-pila_group = pygame.sprite.Group()
+pila_group_right_side = pygame.sprite.Group()
+pila_group_left_side = pygame.sprite.Group()
 health_group = pygame.sprite.Group()
 hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
 
@@ -68,7 +69,7 @@ def cleaning_group_of_sprites():
     coins_group.empty()
     pit_group.empty()
     shield_group.empty()
-    pila_group.empty()
+    pila_group_right_side.empty()
     health_group.empty()
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0] = True, 100, 0, 0
 
@@ -122,8 +123,10 @@ def main():
                 pit_group.update()
             shield_group.draw(screen)
             player_group.draw(screen)
-            pila_group.draw(screen)
-            pila_group.update()
+            pila_group_right_side.draw(screen)
+            pila_group_right_side.update()
+            pila_group_left_side.draw(screen)
+            pila_group_left_side.update()
             health_group.draw(screen)
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
@@ -389,9 +392,33 @@ class Pit(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
 
-class Pila(pygame.sprite.Sprite):
+class PilaRight(pygame.sprite.Sprite):
     def __init__(self, tyle_type, pos_x, pos_y):
-        super().__init__(pila_group, all_sprites)
+        super().__init__(pila_group_right_side, all_sprites)
+        self.image = pygame.transform.flip(tile_images[tyle_type], True, False)
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        if pygame.sprite.spritecollideany(self, player_group):
+            hp[0] -= 1
+        if pygame.sprite.spritecollideany(self, boxes_group):
+            if moving_pila_right_side[0] == 'Right':
+                self.image = pygame.transform.flip(self.image, True, False)
+                moving_pila_right_side[0] = 'Left'
+            elif moving_pila_right_side[0] == 'Left':
+                self.image = pygame.transform.flip(self.image, True, False)
+                moving_pila_right_side[0] = 'Right'
+        if moving_pila_right_side[0] == 'Right':
+            self.rect.x += 5
+        else:
+            self.rect.x -= 5
+
+
+class PilaLeft(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(pila_group_left_side, all_sprites)
         self.image = tile_images[tyle_type]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
@@ -401,16 +428,16 @@ class Pila(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, player_group):
             hp[0] -= 1
         if pygame.sprite.spritecollideany(self, boxes_group):
-            if moving_pila[0] == 'Right':
+            if moving_pila_left_side[0] == 'Right':
                 self.image = pygame.transform.flip(self.image, True, False)
-                moving_pila[0] = 'Left'
-            elif moving_pila[0] == 'Left':
+                moving_pila_left_side[0] = 'Left'
+            elif moving_pila_left_side[0] == 'Left':
                 self.image = pygame.transform.flip(self.image, True, False)
-                moving_pila[0] = 'Right'
-        if moving_pila[0] == 'Right':
-            self.rect.x -= 5
-        else:
+                moving_pila_left_side[0] = 'Right'
+        if moving_pila_left_side[0] == 'Right':
             self.rect.x += 5
+        else:
+            self.rect.x -= 5
 
 
 class Shield(pygame.sprite.Sprite):
@@ -514,9 +541,12 @@ def generate_level(level):
             elif level[y][x] == '!':
                 Land('empty', x, y)
                 Shield('shield', x, y)
-            elif level[y][x] == 'p':
+            elif level[y][x] == '>':
                 Land('empty', x, y)
-                Pila('car', x, y)
+                PilaRight('car', x, y)
+            elif level[y][x] == '<':
+                Land('empty', x, y)
+                PilaLeft('car', x, y)
             elif level[y][x] == 'h':
                 Land('empty', x, y)
                 Healka('healka', x, y)

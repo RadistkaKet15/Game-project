@@ -9,7 +9,7 @@
 #..............................................#
 ####################..........##################
 ppppppppppppppppppp#..........#ppppppppppppppppp
-ppppppppppppppppppp#..........#pppppppppppppppp
+ppppppppppppppppppp#..........#ppppppppppppppppp
 ppppppppppppppppppp#..........#ppppppppppppppppp
 ppppppppppppppppppp#......$...#ppppppppppppppppp
 ppppppppppppppppppp#..........#ppppppppppppppppp

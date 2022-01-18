@@ -16,7 +16,7 @@ shield_claim = pygame.mixer.Sound('sounds/shield.wav')
 shield_cancel = pygame.mixer.Sound('sounds/minus_shield.wav')
 nextLevel_sound = pygame.mixer.Sound('sounds/next_level.wav')
 tile_width = tile_height = 75
-game_sounding, moving_pila = [True], ['Right']
+game_sounding, moving_pila_right_side, moving_pila_left_side = [True], ['Right'], ['Left']
 coin_kolvo_mustClaim = [0]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
@@ -25,7 +25,7 @@ size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
 tile_images = {
     'wall': pygame.transform.scale(pygame.image.load('data/box.png'), (tile_width, tile_height)),
-    'empty': pygame.transform.scale(pygame.image.load('data/grass2.png'),
+    'empty': pygame.transform.scale(pygame.image.load('data/grass1.png'),
                                     (tile_width, tile_height)),
     'capcan': pygame.transform.scale(pygame.image.load('data/trip_capcan.png'),
                                      (tile_width, tile_height)),
@@ -54,7 +54,8 @@ player_group = pygame.sprite.Group()
 coins_group = pygame.sprite.Group()
 pit_group = pygame.sprite.Group()
 shield_group = pygame.sprite.Group()
-pila_group = pygame.sprite.Group()
+pila_group_right_side = pygame.sprite.Group()
+pila_group_left_side = pygame.sprite.Group()
 health_group = pygame.sprite.Group()
 hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
 
@@ -68,19 +69,17 @@ def cleaning_group_of_sprites():
     coins_group.empty()
     pit_group.empty()
     shield_group.empty()
-    pila_group.empty()
+    pila_group_right_side.empty()
     health_group.empty()
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0] = True, 100, 0, 0
 
 
-def main(level_name):
+def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
-
     x_gameOver, y_gameOver = (-450, 0)
     fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
     font = pygame.font.Font(None, 25)
-    player, level_x, level_y = generate_level(load_level(level_name))
     start = True
 
     while running[0] is True:
@@ -119,26 +118,28 @@ def main(level_name):
             boxes_group.draw(screen)
             capcans_group.draw(screen)
             coins_group.draw(screen)
-            if coin_kolvo_claim[0] == coin_kolvo_mustClaim[0]:
+            if coin_kolvo_claim[0] == 3:
                 pit_group.draw(screen)
                 pit_group.update()
             shield_group.draw(screen)
             player_group.draw(screen)
-            pila_group.draw(screen)
-            pila_group.update()
+            pila_group_right_side.draw(screen)
+            pila_group_right_side.update()
+            pila_group_left_side.draw(screen)
+            pila_group_left_side.update()
             health_group.draw(screen)
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('red'))
             elif hp[0] <= 50:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('orange'))
             elif hp[0] <= 75:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)
@@ -316,7 +317,10 @@ def options():
                                                                      tile_height - 20))
                     tile_images['car'] = pygame.transform.scale(
                         pygame.image.load('data/police_car.png'),
-                        (tile_width + 20, tile_height + 20))
+                        (tile_width + 50, tile_height + 20))
+                    tile_images['empty'] = pygame.transform.scale(
+                        pygame.image.load('data/grass1.png'),
+                        (tile_width, tile_height))
 
                 if 400 < mp[0] < 550 and 200 < mp[1] < 350:
                     choice = 2
@@ -327,12 +331,18 @@ def options():
                         (tile_width - 20, tile_height - 20))
                     tile_images['car'] = pygame.transform.scale(pygame.image.load('data/car.png'),
                                                                 (tile_width + 20, tile_height + 20))
+                    tile_images['empty'] = pygame.transform.scale(
+                        pygame.image.load('data/grass2.png'),
+                        (tile_width, tile_height))
+                if 350 < mp[0] < 450 and 450 < mp[1] < 500:
+                    done = False
             if keys[pygame.K_ESCAPE]:
                 return
         if choice == 1:
             pygame.draw.rect(screen, (255, 0, 0), (160, 160, 230, 220), 4)
         if choice == 2:
             pygame.draw.rect(screen, (255, 0, 0), (420, 160, 210, 220), 4)
+        screen.blit(font_menu.render('Apply', 1, (255, 255, 255)), (350, 450))
         screen.blit(font_menu.render('Choose your hero...', 1, (255, 255, 255)), (220, 50))
         pygame.display.flip()
 
@@ -391,9 +401,33 @@ class Pit(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
 
 
-class Pila(pygame.sprite.Sprite):
+class PilaRight(pygame.sprite.Sprite):
     def __init__(self, tyle_type, pos_x, pos_y):
-        super().__init__(pila_group, all_sprites)
+        super().__init__(pila_group_right_side, all_sprites)
+        self.image = pygame.transform.flip(tile_images[tyle_type], True, False)
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def update(self):
+        if pygame.sprite.spritecollideany(self, player_group):
+            hp[0] -= 1
+        if pygame.sprite.spritecollideany(self, boxes_group):
+            if moving_pila_right_side[0] == 'Right':
+                self.image = pygame.transform.flip(self.image, True, False)
+                moving_pila_right_side[0] = 'Left'
+            elif moving_pila_right_side[0] == 'Left':
+                self.image = pygame.transform.flip(self.image, True, False)
+                moving_pila_right_side[0] = 'Right'
+        if moving_pila_right_side[0] == 'Right':
+            self.rect.x += 5
+        else:
+            self.rect.x -= 5
+
+
+class PilaLeft(pygame.sprite.Sprite):
+    def __init__(self, tyle_type, pos_x, pos_y):
+        super().__init__(pila_group_left_side, all_sprites)
         self.image = tile_images[tyle_type]
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(tile_width * pos_x, tile_height * pos_y)
@@ -403,16 +437,16 @@ class Pila(pygame.sprite.Sprite):
         if pygame.sprite.spritecollideany(self, player_group):
             hp[0] -= 1
         if pygame.sprite.spritecollideany(self, boxes_group):
-            if moving_pila[0] == 'Right':
+            if moving_pila_left_side[0] == 'Right':
                 self.image = pygame.transform.flip(self.image, True, False)
-                moving_pila[0] = 'Left'
-            elif moving_pila[0] == 'Left':
+                moving_pila_left_side[0] = 'Left'
+            elif moving_pila_left_side[0] == 'Left':
                 self.image = pygame.transform.flip(self.image, True, False)
-                moving_pila[0] = 'Right'
-        if moving_pila[0] == 'Right':
-            self.rect.x -= 5
-        else:
+                moving_pila_left_side[0] = 'Right'
+        if moving_pila_left_side[0] == 'Right':
             self.rect.x += 5
+        else:
+            self.rect.x -= 5
 
 
 class Shield(pygame.sprite.Sprite):
@@ -455,8 +489,7 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 coin_claim.play()
             coin_kolvo_claim[0] += 1
-        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == \
-                coin_kolvo_mustClaim[0]:
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == 3:
             running[0] = False
             if game_sounding[0] is True:
                 nextLevel_sound.play()
@@ -516,9 +549,12 @@ def generate_level(level):
             elif level[y][x] == '!':
                 Land('empty', x, y)
                 Shield('shield', x, y)
-            elif level[y][x] == 'p':
+            elif level[y][x] == '>':
                 Land('empty', x, y)
-                Pila('car', x, y)
+                PilaRight('car', x, y)
+            elif level[y][x] == '<':
+                Land('empty', x, y)
+                PilaLeft('car', x, y)
             elif level[y][x] == 'h':
                 Land('empty', x, y)
                 Healka('healka', x, y)
@@ -540,6 +576,14 @@ class Camera:
 
 
 game.menu()
-main('level_2.txt')
+player, level_x, level_y = generate_level(load_level('level_1.txt'))
+main()
 cleaning_group_of_sprites()
-main('level_3.txt')
+player, level_x, level_y = generate_level(load_level('level_2.txt'))
+main()
+cleaning_group_of_sprites()
+player, level_x, level_y = generate_level(load_level('level_3.txt'))
+main()
+cleaning_group_of_sprites()
+player, level_x, level_y = generate_level(load_level('level_4.txt'))
+main()

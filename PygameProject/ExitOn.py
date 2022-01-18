@@ -25,7 +25,7 @@ size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
 tile_images = {
     'wall': pygame.transform.scale(pygame.image.load('data/box.png'), (tile_width, tile_height)),
-    'empty': pygame.transform.scale(pygame.image.load('data/grass2.png'),
+    'empty': pygame.transform.scale(pygame.image.load('data/grass1.png'),
                                     (tile_width, tile_height)),
     'capcan': pygame.transform.scale(pygame.image.load('data/trip_capcan.png'),
                                      (tile_width, tile_height)),
@@ -317,7 +317,10 @@ def options():
                                                                      tile_height - 20))
                     tile_images['car'] = pygame.transform.scale(
                         pygame.image.load('data/police_car.png'),
-                        (tile_width + 20, tile_height + 20))
+                        (tile_width + 50, tile_height + 20))
+                    tile_images['empty'] = pygame.transform.scale(
+                        pygame.image.load('data/grass1.png'),
+                        (tile_width, tile_height))
 
                 if 400 < mp[0] < 550 and 200 < mp[1] < 350:
                     choice = 2
@@ -328,12 +331,18 @@ def options():
                         (tile_width - 20, tile_height - 20))
                     tile_images['car'] = pygame.transform.scale(pygame.image.load('data/car.png'),
                                                                 (tile_width + 20, tile_height + 20))
+                    tile_images['empty'] = pygame.transform.scale(
+                        pygame.image.load('data/grass2.png'),
+                        (tile_width, tile_height))
+                if 350 < mp[0] < 450 and 450 < mp[1] < 500:
+                    done = False
             if keys[pygame.K_ESCAPE]:
                 return
         if choice == 1:
             pygame.draw.rect(screen, (255, 0, 0), (160, 160, 230, 220), 4)
         if choice == 2:
             pygame.draw.rect(screen, (255, 0, 0), (420, 160, 210, 220), 4)
+        screen.blit(font_menu.render('Apply', 1, (255, 255, 255)), (350, 450))
         screen.blit(font_menu.render('Choose your hero...', 1, (255, 255, 255)), (220, 50))
         pygame.display.flip()
 

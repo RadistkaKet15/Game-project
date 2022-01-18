@@ -577,6 +577,9 @@ class Camera:
 
 
 game.menu()
+player, level_x, level_y = generate_level(load_level('level_1.txt'))
+main()
+cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_2.txt'))
 main()
 cleaning_group_of_sprites()

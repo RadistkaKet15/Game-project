@@ -118,7 +118,7 @@ def main():
             boxes_group.draw(screen)
             capcans_group.draw(screen)
             coins_group.draw(screen)
-            if coin_kolvo_claim[0] == 3:
+            if coin_kolvo_claim[0] >= 3:
                 pit_group.draw(screen)
                 pit_group.update()
             shield_group.draw(screen)
@@ -489,7 +489,7 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 coin_claim.play()
             coin_kolvo_claim[0] += 1
-        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == 3:
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= 3:
             running[0] = False
             if game_sounding[0] is True:
                 nextLevel_sound.play()

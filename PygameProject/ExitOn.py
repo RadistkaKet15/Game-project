@@ -118,7 +118,7 @@ def main():
             boxes_group.draw(screen)
             capcans_group.draw(screen)
             coins_group.draw(screen)
-            if coin_kolvo_claim[0] == coin_kolvo_mustClaim[0]:
+            if coin_kolvo_claim[0] == 3:
                 pit_group.draw(screen)
                 pit_group.update()
             shield_group.draw(screen)
@@ -131,15 +131,15 @@ def main():
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('red'))
             elif hp[0] <= 50:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('orange'))
             elif hp[0] <= 75:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Bottle: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
                     True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)
@@ -489,8 +489,7 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 coin_claim.play()
             coin_kolvo_claim[0] += 1
-        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == \
-                coin_kolvo_mustClaim[0]:
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] == 3:
             running[0] = False
             if game_sounding[0] is True:
                 nextLevel_sound.play()

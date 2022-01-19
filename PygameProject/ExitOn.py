@@ -22,6 +22,7 @@ game_sounding, moving_pila_right_side, moving_pila_left_side = [True], ['Right']
 coin_kolvo_mustClaim = [0]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
+hero = 1
 
 ALPH_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ALPH_LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
@@ -30,7 +31,7 @@ ALPH_DIGITS = '0123456789'
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
 tile_images = {
-    'wall': pygame.transform.scale(pygame.image.load('data/box.png'), (tile_width, tile_height)),
+    'wall': pygame.transform.scale(pygame.image.load('data/box1.png'), (tile_width, tile_height)),
     'empty': pygame.transform.scale(pygame.image.load('data/grass1.png'),
                                     (tile_width, tile_height)),
     'capcan': pygame.transform.scale(pygame.image.load('data/trip_capcan.png'),
@@ -559,6 +560,7 @@ def options():
     choice = 1
     global tile_images
     global player_image
+    global hero
     while done:
         pygame.display.set_caption('Options')
         screen.blit(pygame.image.load('data/background_for_game.jpg'), (0, 0))
@@ -574,6 +576,7 @@ def options():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if 200 < mp[0] < 350 and 200 < mp[1] < 350:
                     choice = 1
+                    hero = 1
                     player_image = pygame.transform.scale(pygame.image.load('data/robber.png'),
                                                           (120, 120))
                     tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/coin.png'),
@@ -586,19 +589,24 @@ def options():
                     tile_images['empty'] = pygame.transform.scale(
                         pygame.image.load('data/grass1.png'),
                         (tile_width, tile_height))
+                    tile_images['wall'] = pygame.transform.scale(
+                        pygame.image.load('data/box1.png'), (tile_width, tile_height))
 
                 if 400 < mp[0] < 550 and 200 < mp[1] < 350:
                     choice = 2
+                    hero = 2
                     player_image = pygame.transform.scale(pygame.image.load('data/men.png'),
                                                           (100, 100))
                     tile_images['coin'] = pygame.transform.scale(
                         pygame.image.load('data/bottle.png'),
-                        (tile_width - 20, tile_height - 20))
+                        (tile_width - 5, tile_height - 5))
                     tile_images['car'] = pygame.transform.scale(pygame.image.load('data/car.png'),
                                                                 (tile_width + 20, tile_height + 20))
                     tile_images['empty'] = pygame.transform.scale(
                         pygame.image.load('data/grass2.png'),
                         (tile_width, tile_height))
+                    tile_images['wall'] = pygame.transform.scale(
+                        pygame.image.load('data/box.png'), (tile_width, tile_height))
                 if 350 < mp[0] < 450 and 450 < mp[1] < 500:
                     done = False
             if keys[pygame.K_ESCAPE]:
@@ -844,11 +852,37 @@ class Camera:
 game.menu()
 player, level_x, level_y = generate_level(load_level('level_1.txt'))
 main()
-tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass.png'),
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass4.png'),
                                               (tile_width, tile_height))
+tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box2.png'),
+                                             (tile_width, tile_height))
+tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/capcan.png'),
+                                             (tile_width + 10, tile_height + 10))
+if hero == 1:
+    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/key.png'),
+                                                 (tile_width - 10, tile_height - 10))
+if hero == 2:
+    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/bottle1.png'),
+                                                 (tile_width + 5, tile_height + 5))
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_2.txt'))
 main()
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/land.png'),
+                                              (tile_width, tile_height))
+tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box1.png'),
+                                              (tile_width, tile_height))
+tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/fair.png'),
+                                               (tile_width - 10, tile_height - 10))
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_3.txt'))
 main()
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass3.png'),
+                                              (tile_width, tile_height))
+tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box3.png'),
+                                              (tile_width, tile_height))
+tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/capcan.png'),
+                                               (tile_width - 10, tile_height - 10))
+cleaning_group_of_sprites()
+player, level_x, level_y = generate_level(load_level('level_4.txt'))
+main()
+

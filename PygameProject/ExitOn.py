@@ -71,7 +71,8 @@ def cleaning_group_of_sprites():
     shield_group.empty()
     pila_group_right_side.empty()
     health_group.empty()
-    running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0] = True, 100, 0, 0
+    running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0], coin_kolvo_mustClaim[
+        0] = True, 100, 0, 0, 0
 
 
 def main():
@@ -118,7 +119,7 @@ def main():
             boxes_group.draw(screen)
             capcans_group.draw(screen)
             coins_group.draw(screen)
-            if coin_kolvo_claim[0] >= 3:
+            if coin_kolvo_claim[0] >= coin_kolvo_mustClaim[0]:
                 pit_group.draw(screen)
                 pit_group.update()
             shield_group.draw(screen)
@@ -489,7 +490,8 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 coin_claim.play()
             coin_kolvo_claim[0] += 1
-        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= 3:
+        if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= \
+                coin_kolvo_mustClaim[0]:
             running[0] = False
             if game_sounding[0] is True:
                 nextLevel_sound.play()

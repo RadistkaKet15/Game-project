@@ -70,9 +70,11 @@ def cleaning_group_of_sprites():
     pit_group.empty()
     shield_group.empty()
     pila_group_right_side.empty()
+    pila_group_left_side.empty()
     health_group.empty()
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0], coin_kolvo_mustClaim[
         0] = True, 100, 0, 0, 0
+    moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
 
 
 def main():

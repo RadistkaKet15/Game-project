@@ -1,7 +1,9 @@
 import os
 import sys
 import pygame
+import pygame_gui
 import random
+import sqlite3
 
 pygame.init()
 icon = pygame.image.load('femida.png')
@@ -20,6 +22,10 @@ game_sounding, moving_pila_right_side, moving_pila_left_side = [True], ['Right']
 coin_kolvo_mustClaim = [0]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
+
+ALPH_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+ALPH_LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
+ALPH_DIGITS = '0123456789'
 
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
@@ -45,6 +51,8 @@ game_over = pygame.transform.scale(pygame.image.load('data/Game-Over.jpg'), (siz
 player = None
 
 font_menu = pygame.font.SysFont('Comic Sans MS', 40)
+
+manager = pygame_gui.UIManager(size)
 
 all_sprites = pygame.sprite.Group()
 grass_group = pygame.sprite.Group()
@@ -77,6 +85,248 @@ def cleaning_group_of_sprites():
     moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
 
 
+class PasswordError(BaseException):
+    pass
+
+
+class Registraion:
+    def __init__(self):
+        pygame.init()
+        size = width, height = (450, 380)
+        manager_gui = pygame_gui.UIManager(size)
+        clock = pygame.time.Clock()
+        con = sqlite3.connect('Users_Base.db')
+        cur = con.cursor()
+        screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
+        background, complit_regist = pygame.transform.scale(
+            pygame.image.load(os.path.join('../images\image_for_registration.png')), (size)), \
+                                     pygame.transform.scale(pygame.image.load(
+                                         os.path.join(
+                                             '../images\Complited_registration.png')),
+                                         (60, 60))
+
+        pygame.display.set_caption('Regestration')
+        font = pygame.font.SysFont('serif', 35)
+        name_label = font.render('Login:', True, (255, 0, 0))
+        password_label = font.render('Password:', True, (255, 0, 0))
+        registration_label = font.render('Registration', True, (255, 0, 0))
+        condition_label, PasswordError_label = None, None
+
+        regist_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((150, 210), (150, 50)),
+            manager=manager_gui, text='Regist')
+        log_in_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((320, 290), (100, 35)),
+            manager=manager_gui, text='Sign In')
+
+        entryline_name = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
+            relative_rect=pygame.Rect((200, 110), (200, 30)), manager=manager_gui)
+
+        entryline_passsword = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
+            relative_rect=pygame.Rect((200, 159), (200, 30)), manager=manager_gui)
+
+        while running:
+            time_delta = clock.tick(60) / 1000
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
+                            event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                        PasswordError_label = None
+                        if event.ui_element == regist_button or event.ui_element == entryline_name \
+                                or event.ui_element == entryline_passsword:
+                            try:
+                                if not entryline_name.text and not entryline_passsword.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size).render(
+                                        'You have to make a registration!', True, (255, 0, 0))
+                                elif not entryline_name.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size).render(
+                                        'You have to write your nick name!', True, (255, 0, 0))
+                                elif not entryline_passsword.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size).render(
+                                        'You have to write your password!', True, (255, 0, 0))
+                                elif entryline_name.text and entryline_passsword.text:
+                                    pas_check = checking_password(entryline_passsword.text)
+                                    if pas_check:
+                                        cur.execute(
+                                            "INSERT INTO users(name, password) VALUES(?, ?)",
+                                            (entryline_name.text, entryline_passsword.text))
+                                        con.commit()
+                                        complited = True
+                                        condition_label = condition_label = pygame.font.SysFont(
+                                            'serif',
+                                            text_size).render(
+                                            'Successfully registration!', True, (0, 255, 0))
+                                    else:
+                                        raise PasswordError
+                            except sqlite3.IntegrityError:
+                                condition_label = condition_label = pygame.font.SysFont(
+                                    'serif', text_size).render(
+                                    'Sorry, change your Login, please!', True, (255, 0, 0))
+                            except PasswordError:
+                                condition_label = pygame.font.SysFont('serif',
+                                                                      text_size).render(
+                                    'Something wrong with your password!', True,
+                                    (255, 0, 0))
+                                PasswordError_label = True
+                        elif event.ui_element == log_in_button:
+                            pygame.quit()
+                            Logging()
+                manager_gui.process_events(event)
+
+            manager_gui.update(time_delta)
+            screen.blit(background, (0, 0))
+            screen.blit(name_label, (80, 100))
+            screen.blit(password_label, (30, 150))
+            screen.blit(registration_label, (width / 2 - 85, 30))
+            if condition_label:
+                if PasswordError_label:
+                    screen.blit(pygame.font.SysFont('serif',
+                                                    text_size).render(
+                        'Your password must have lower letter, upper letter', True,
+                        (255, 0, 0)), (10, 330))
+                    screen.blit(pygame.font.SysFont('serif',
+                                                    text_size).render(
+                        'and digit! The password must be longer than 6 symbols!', True,
+                        (255, 0, 0)), (10, 350))
+                screen.blit(condition_label, (10, 297))
+            if complited:
+                screen.blit(complit_regist, (screen.get_width() // 2 + 20, 280))
+                manager_gui.draw_ui(screen)
+                pygame.display.flip()
+                pygame.time.delay(2000)
+                running = False
+            manager_gui.draw_ui(screen)
+            pygame.display.flip()
+        pygame.quit()
+
+
+def checking_password(password):
+    letter_upper, letter_lower, digit = None, None, None
+    for elem in password:
+        if elem in ALPH_UPPERCASE:
+            letter_upper = 1
+        elif elem in ALPH_LOWERCASE:
+            letter_lower = 1
+        elif elem in ALPH_DIGITS:
+            digit = 1
+    return True if letter_upper == letter_lower == digit == 1 and len(password) > 6 else False
+
+
+class Logging:
+    def __init__(self):
+        pygame.init()
+        size = width, height = (450, 380)
+        manager_gui = pygame_gui.UIManager(size)
+        clock = pygame.time.Clock()
+        con = sqlite3.connect('Users_Base.db')
+        cur = con.cursor()
+        screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
+        background, complit_logging = pygame.transform.scale(
+            pygame.image.load(os.path.join('../images\image_for_registration.png')), (size)), \
+                                      pygame.transform.scale(pygame.image.load(
+                                          os.path.join(
+                                              '../images\Complited_registration.png')),
+                                          (60, 60))
+
+        pygame.display.set_caption('Sign In')
+        font = pygame.font.SysFont('serif', 35)
+        name_label = font.render('Login:', True, (255, 0, 0))
+        password_label = font.render('Password:', True, (255, 0, 0))
+        registration_label = font.render('Sign In', True, (255, 0, 0))
+        condition_label, PasswordError_label = None, None
+
+        log_in_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((150, 210), (150, 50)),
+            manager=manager_gui, text='Sign In')
+
+        regist_button = pygame_gui.elements.UIButton(
+            relative_rect=pygame.Rect((320, 270), (120, 35)),
+            manager=manager_gui, text='Registration')
+
+        entryline_name = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
+            relative_rect=pygame.Rect((200, 110), (200, 30)), manager=manager_gui)
+
+        entryline_passsword = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
+            relative_rect=pygame.Rect((200, 159), (200, 30)), manager=manager_gui)
+
+        while running:
+            time_delta = clock.tick(60) / 1000
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.USEREVENT:
+                    if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
+                            event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                        PasswordError_label = None
+                        if event.ui_element == log_in_button or event.ui_element == entryline_name \
+                                or event.ui_element == entryline_passsword:
+                            try:
+                                if not entryline_name.text and not entryline_passsword.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size - 2).render(
+                                        'You have to logging or make a registration!', True,
+                                        (255, 0, 0))
+                                elif not entryline_name.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size).render(
+                                        'You have to write your nick name!', True, (255, 0, 0))
+                                elif not entryline_passsword.text:
+                                    condition_label = pygame.font.SysFont('serif',
+                                                                          text_size).render(
+                                        'You have to write your password!', True, (255, 0, 0))
+                                elif entryline_name.text and entryline_passsword.text:
+                                    test = list(con.execute(f"""SELECT password FROM USERS
+                                                              WHERE name = '{entryline_name.text}'"""))
+                                    if not test:
+                                        condition_label = pygame.font.SysFont('serif',
+                                                                              text_size).render(
+                                            'We can`t find anything in our base!', True,
+                                            (255, 0, 0))
+                                        PasswordError_label = True
+                                    elif test[0][0] == entryline_passsword.text:
+                                        complited = True
+                                        condition_label = pygame.font.SysFont('serif',
+                                                                              text_size).render(
+                                            'Successfully logging!', True, (0, 255, 0))
+                            except PasswordError:
+                                PasswordError_label = True
+                        elif event.ui_element == regist_button:
+                            pygame.quit()
+                            Registraion()
+                manager_gui.process_events(event)
+
+            manager_gui.update(time_delta)
+            screen.blit(background, (0, 0))
+            screen.blit(name_label, (80, 100))
+            screen.blit(password_label, (30, 150))
+            screen.blit(registration_label, (width / 2 - 50, 30))
+            if condition_label:
+                if PasswordError_label:
+                    screen.blit(pygame.font.SysFont('serif',
+                                                    text_size).render(
+                        'Your have to rewrite your password or login...', True,
+                        (255, 0, 0)), (10, 315))
+                    screen.blit(pygame.font.SysFont('serif',
+                                                    text_size).render(
+                        'Or you have to regist!', True,
+                        (255, 0, 0)), (10, 332))
+                screen.blit(condition_label, (10, 297))
+            if complited:
+                screen.blit(complit_logging, (screen.get_width() // 2 - 40, 280))
+                manager_gui.draw_ui(screen)
+                pygame.display.flip()
+                pygame.time.delay(2000)
+                running = False
+            manager_gui.draw_ui(screen)
+            pygame.display.flip()
+        pygame.quit()
+
+
 def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
@@ -94,10 +344,19 @@ def main():
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                terminate()
+                confirmation_dialog = pygame_gui.windows.UIConfirmationDialog(
+                    rect=pygame.Rect((250, 200), (300, 200)),
+                    manager=manager, window_title='Подтверждение',
+                    action_long_desc='Вы уверены, что хотите выйти?) Весь ваш прогресс сброситься!',
+                    action_short_name='OK',
+                    blocking=True)
             if event.type == pygame.KEYDOWN:  # если событие нажатие клавиши
                 if event.key == pygame.K_ESCAPE:  # если клавиша Esc
                     game.menu()
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                    terminate()
+            manager.process_events(event)
         if keys[pygame.K_LEFT]:
             player.rect.x -= 8
             player_group.update(player.rect.x, player.rect.y, 'left')
@@ -114,6 +373,7 @@ def main():
             screen.blit(
                 pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
                 (0, 0))
+
             camera.update(player)
             for sprite in all_sprites:
                 camera.apply(sprite)
@@ -155,6 +415,8 @@ def main():
                 x_gameOver = x_gameOver
             else:
                 x_gameOver += clock.tick() * 75 / 350
+        manager.update(ticking)
+        manager.draw_ui(screen)
         pygame.display.flip()
 
 
@@ -582,6 +844,8 @@ class Camera:
 game.menu()
 player, level_x, level_y = generate_level(load_level('level_1.txt'))
 main()
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass.png'),
+                                              (tile_width, tile_height))
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_2.txt'))
 main()

@@ -900,3 +900,16 @@ tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/capcan.pn
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_4.txt'))
 main()
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/water.png'),
+                                              (tile_width, tile_height))
+tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/bird.png'),
+                                               (tile_width, tile_height))
+if hero == 1:
+    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/coin.png'),
+                                                 (tile_width - 10, tile_height - 10))
+if hero == 2:
+    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/bottle.png'),
+                                                 (tile_width + 5, tile_height + 5))
+cleaning_group_of_sprites()
+player, level_x, level_y = generate_level(load_level('level_5.txt'))
+main()

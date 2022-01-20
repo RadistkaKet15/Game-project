@@ -84,9 +84,10 @@ def cleaning_group_of_sprites():
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0], coin_kolvo_mustClaim[
         0] = True, 100, 0, 0, 0
     moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
-    pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
-    pygame.mixer.music.set_volume(0.7)
-    pygame.mixer.music.play(-1)
+    if game_sounding[0] is True:
+        pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
+        pygame.mixer.music.set_volume(0.7)
+        pygame.mixer.music.play(-1)
 
 
 class PasswordError(BaseException):
@@ -389,7 +390,7 @@ def main():
                 pit_group.draw(screen)
                 pit_group.update()
                 screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
-                if find_the_exit[0] is True:
+                if find_the_exit[0] is True and game_sounding[0] is True:
                     pygame.mixer.music.load('sounds/Find_the_exit.mp3')
                     pygame.mixer.music.set_volume(0.7)
                     pygame.mixer.music.play(-1)

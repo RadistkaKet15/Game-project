@@ -67,6 +67,7 @@ pila_group_right_side = pygame.sprite.Group()
 pila_group_left_side = pygame.sprite.Group()
 health_group = pygame.sprite.Group()
 hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
+lose_game = [False]
 
 
 def cleaning_group_of_sprites():
@@ -422,6 +423,7 @@ def main():
             if game_sounding[0] is True:
                 game_over_sound.play()
             screen.blit(game_over, (x_gameOver, y_gameOver))
+            lose_game[0] = True
             if x_gameOver >= 0:
                 x_gameOver = x_gameOver
             else:
@@ -784,7 +786,8 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 shield_claim.play()
         if pygame.sprite.spritecollide(self, health_group, True):
-            hp[0] = 100
+            if lose_game[0] is False:
+                hp[0] = 100
 
 
 class AnimatedSprites(pygame.sprite.Sprite):

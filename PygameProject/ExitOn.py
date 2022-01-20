@@ -89,6 +89,7 @@ def cleaning_group_of_sprites():
         pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
         pygame.mixer.music.set_volume(0.7)
         pygame.mixer.music.play(-1)
+    counter[0] = 15
 
 
 class PasswordError(BaseException):
@@ -333,6 +334,10 @@ class Logging:
         pygame.quit()
 
 
+counter = [15]
+timer_event = pygame.USEREVENT + 1
+
+
 def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
@@ -362,6 +367,12 @@ def main():
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
                     terminate()
+            if event.type == timer_event:
+                counter[0] -= 1
+                time_text = font.render(str(counter[0]), True, (0, 128, 0))
+                if counter[0] == -1:
+                    pygame.time.set_timer(timer_event, 0)
+                    hp[0] = 0
             manager.process_events(event)
         if keys[pygame.K_LEFT]:
             player.rect.x -= 8
@@ -388,13 +399,18 @@ def main():
             capcans_group.draw(screen)
             coins_group.draw(screen)
             if coin_kolvo_claim[0] >= coin_kolvo_mustClaim[0]:
+                time_font = pygame.font.SysFont(None, 100)
+                time_text = time_font.render(str(counter[0]), True, (255, 0, 0))
                 pit_group.draw(screen)
                 pit_group.update()
                 screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
-                if find_the_exit[0] is True and game_sounding[0] is True:
-                    pygame.mixer.music.load('sounds/Find_the_exit.mp3')
-                    pygame.mixer.music.set_volume(0.7)
-                    pygame.mixer.music.play(-1)
+                screen.blit(time_text, (width - 90, 10))
+                if find_the_exit[0] is True:
+                    pygame.time.set_timer(timer_event, 1500)
+                    if game_sounding[0] is True:
+                        pygame.mixer.music.load('sounds/Find_the_exit.mp3')
+                        pygame.mixer.music.set_volume(0.7)
+                        pygame.mixer.music.play(-1)
                     find_the_exit[0] = False
             shield_group.draw(screen)
             player_group.draw(screen)
@@ -777,8 +793,9 @@ class Player(pygame.sprite.Sprite):
             if coin_kolvo_mustClaim[0] == coin_kolvo_claim[0]:
                 find_the_exit[0] = True
         if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= \
-                coin_kolvo_mustClaim[0]:
+                coin_kolvo_mustClaim[0] and lose_game[0] is False:
             running[0] = False
+            pygame.time.set_timer(timer_event, 0)
             if game_sounding[0] is True:
                 nextLevel_sound.play()
         if pygame.sprite.spritecollide(self, shield_group, True):

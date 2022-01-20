@@ -19,7 +19,7 @@ shield_cancel = pygame.mixer.Sound('sounds/minus_shield.wav')
 nextLevel_sound = pygame.mixer.Sound('sounds/next_level.wav')
 tile_width = tile_height = 75
 game_sounding, moving_pila_right_side, moving_pila_left_side = [True], ['Right'], ['Left']
-coin_kolvo_mustClaim = [0]
+coin_kolvo_mustClaim, find_the_exit = [0], [False]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
 hero = 1
@@ -45,7 +45,7 @@ tile_images = {
                                   (tile_width + 50, tile_height + 20)),
     'healka': pygame.transform.scale(pygame.image.load('data/Aptechka.png'),
                                      (tile_width, tile_height))}
-
+exit_on = pygame.image.load('data/ExitOn!.png')
 player_image = pygame.transform.scale(pygame.image.load('data/robber.png'), (120, 120))
 game_over = pygame.transform.scale(pygame.image.load('data/Game-Over.jpg'), (size))
 
@@ -84,6 +84,9 @@ def cleaning_group_of_sprites():
     running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0], coin_kolvo_mustClaim[
         0] = True, 100, 0, 0, 0
     moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
+    pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
+    pygame.mixer.music.set_volume(0.7)
+    pygame.mixer.music.play(-1)
 
 
 class PasswordError(BaseException):
@@ -385,6 +388,12 @@ def main():
             if coin_kolvo_claim[0] >= coin_kolvo_mustClaim[0]:
                 pit_group.draw(screen)
                 pit_group.update()
+                screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
+                if find_the_exit[0] is True:
+                    pygame.mixer.music.load('sounds/Find_the_exit.mp3')
+                    pygame.mixer.music.set_volume(0.7)
+                    pygame.mixer.music.play(-1)
+                    find_the_exit[0] = False
             shield_group.draw(screen)
             player_group.draw(screen)
             pila_group_right_side.draw(screen)
@@ -762,6 +771,8 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 coin_claim.play()
             coin_kolvo_claim[0] += 1
+            if coin_kolvo_mustClaim[0] == coin_kolvo_claim[0]:
+                find_the_exit[0] = True
         if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= \
                 coin_kolvo_mustClaim[0]:
             running[0] = False
@@ -857,7 +868,7 @@ tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass4.png
 tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box2.png'),
                                              (tile_width, tile_height))
 tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/capcan.png'),
-                                             (tile_width + 10, tile_height + 10))
+                                               (tile_width + 10, tile_height + 10))
 if hero == 1:
     tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/key.png'),
                                                  (tile_width - 10, tile_height - 10))
@@ -870,7 +881,7 @@ main()
 tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/land.png'),
                                               (tile_width, tile_height))
 tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box1.png'),
-                                              (tile_width, tile_height))
+                                             (tile_width, tile_height))
 tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/fair.png'),
                                                (tile_width - 10, tile_height - 10))
 cleaning_group_of_sprites()
@@ -879,10 +890,9 @@ main()
 tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass3.png'),
                                               (tile_width, tile_height))
 tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box3.png'),
-                                              (tile_width, tile_height))
+                                             (tile_width, tile_height))
 tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/capcan.png'),
                                                (tile_width - 10, tile_height - 10))
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_4.txt'))
 main()
-

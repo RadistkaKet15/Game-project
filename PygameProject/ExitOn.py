@@ -6,7 +6,7 @@ import random
 import sqlite3
 
 pygame.init()
-icon = pygame.image.load('femida.png')
+icon = pygame.image.load('data/exit_ico.ico')
 pygame.display.set_icon(icon)
 pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
 pygame.mixer.music.set_volume(0.7)
@@ -342,12 +342,12 @@ def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
     x_gameOver, y_gameOver = (-450, 0)
-    fon, v, clock = pygame.image.load('data/fon.jpg'), 10, pygame.time.Clock()
+    fon, v, clock = pygame.image.load('data/background.jpg'), 10, pygame.time.Clock()
     font = pygame.font.Font(None, 25)
     start = True
 
     while running[0] is True:
-        pygame.display.set_caption('Level1')
+        # pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
         text = font.render(
             f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
@@ -388,7 +388,7 @@ def main():
             player_group.update(player.rect.x, player.rect.y, 'down')
         if hp[0] > 0:
             screen.blit(
-                pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), size),
+                pygame.transform.scale(pygame.image.load('data/background.jpg'), size),
                 (0, 0))
 
             camera.update(player)
@@ -479,7 +479,7 @@ class Menu:
         item = 0
         while done:
             # screen.fill("#fdc294")
-            fon = pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), (size))
+            fon = pygame.transform.scale(pygame.image.load('data/background.jpg'), (size))
             screen.blit(fon, (0, 0))
             if game_sounding[0]:
                 sound = pygame.transform.scale(pygame.image.load('data/sound.png'), (50, 50))

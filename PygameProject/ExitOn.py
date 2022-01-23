@@ -928,3 +928,16 @@ if hero == 2:
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_5.txt'))
 main()
+tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/ground3.jpg'),
+                                              (tile_width, tile_height))
+tile_images['wall'] = pygame.transform.scale(pygame.image.load('data/box1.png'),
+                                             (tile_width, tile_height))
+if hero == 2:
+    tile_images['coin'] = pygame.transform.scale(pygame.image.load('data/bottle1.png'),
+                                                 (tile_width + 5, tile_height + 5))
+tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/trip_capcan.png'),
+                                               (tile_width + 5, tile_height + 5))
+cleaning_group_of_sprites()
+player, level_x, level_y = generate_level(load_level('level_6.txt'))
+main()
+

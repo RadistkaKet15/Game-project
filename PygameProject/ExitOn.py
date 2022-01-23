@@ -105,30 +105,31 @@ def registration():
     cur = con.cursor()
     screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
     background, complit_regist = pygame.transform.scale(
-        pygame.image.load('data/image_for_registration.png'), (size)), \
+        pygame.image.load('data/background1.jpg'), (size)), \
                                  pygame.transform.scale(
-                                     pygame.image.load('data/Complited_registration.png'),
+                                     pygame.image.load('data/ok.png'),
                                      (60, 60))
-
-    pygame.display.set_caption('Regestration')
+    logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
+    pygame.display.set_caption('Registration')
     font = pygame.font.SysFont('serif', 35)
-    name_label = font.render('Login:', True, (255, 0, 0))
-    password_label = font.render('Password:', True, (255, 0, 0))
-    registration_label = font.render('Registration', True, (255, 0, 0))
+    font1 = pygame.font.SysFont('serif', 25)
+    name_label = font1.render('Login:', True, (200, 200, 200))
+    password_label = font1.render('Password:', True, (200, 200, 200))
+    registration_label = font.render('Registration', True, (255, 255, 255))
     condition_label, PasswordError_label = None, None
 
     regist_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((150, 210), (150, 50)),
+        relative_rect=pygame.Rect((325, 210), (150, 50)),
         manager=manager_gui, text='Regist')
     log_in_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((320, 290), (100, 35)),
+        relative_rect=pygame.Rect((400, 290), (100, 35)),
         manager=manager_gui, text='Sign In')
 
     entryline_name = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
-        relative_rect=pygame.Rect((200, 110), (200, 30)), manager=manager_gui)
+        relative_rect=pygame.Rect((300, 110), (200, 30)), manager=manager_gui)
 
     entryline_passsword = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
-        relative_rect=pygame.Rect((200, 159), (200, 30)), manager=manager_gui)
+        relative_rect=pygame.Rect((300, 159), (200, 30)), manager=manager_gui)
 
     while running:
         time_delta = clock.tick(60) / 1000
@@ -186,8 +187,9 @@ def registration():
 
         manager_gui.update(time_delta)
         screen.blit(background, (0, 0))
-        screen.blit(name_label, (80, 100))
-        screen.blit(password_label, (30, 150))
+        screen.blit(logo, (230, 350))
+        screen.blit(name_label, (220, 108))
+        screen.blit(password_label, (183, 160))
         screen.blit(registration_label, (width / 2 - 85, 30))
         if condition_label:
             if PasswordError_label:
@@ -201,7 +203,7 @@ def registration():
                     (255, 0, 0)), (10, 350))
             screen.blit(condition_label, (10, 297))
         if complited:
-            screen.blit(complit_regist, (screen.get_width() // 2 + 20, 280))
+            screen.blit(complit_regist, (210, 255))
             manager_gui.draw_ui(screen)
             pygame.display.flip()
             pygame.time.delay(2000)
@@ -230,31 +232,33 @@ def loggining():
     cur = con.cursor()
     screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
     background, complit_logging = pygame.transform.scale(
-        pygame.image.load('data/image_for_registration.png'), (size)), \
+        pygame.image.load('data/background2.jpg'), (size)), \
                                   pygame.transform.scale(pygame.image.load(
-                                      'data/Complited_registration.png'),
+                                      'data/ok.png'),
                                       (60, 60))
+    logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
 
     pygame.display.set_caption('Sign In')
     font = pygame.font.SysFont('serif', 35)
-    name_label = font.render('Login:', True, (255, 0, 0))
-    password_label = font.render('Password:', True, (255, 0, 0))
-    registration_label = font.render('Sign In', True, (255, 0, 0))
+    font1 = pygame.font.SysFont('serif', 25)
+    name_label = font1.render('Login:', True, (255, 255, 170))
+    password_label = font1.render('Password:', True, (255, 255, 170))
+    registration_label = font.render('Sign In', True, (255, 255, 0))
     condition_label, PasswordError_label = None, None
 
     log_in_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((150, 210), (150, 50)),
+        relative_rect=pygame.Rect((325, 210), (150, 50)),
         manager=manager_gui, text='Sign In')
 
     regist_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((320, 270), (120, 35)),
+        relative_rect=pygame.Rect((380, 290), (120, 35)),
         manager=manager_gui, text='Registration')
 
     entryline_name = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
-        relative_rect=pygame.Rect((200, 110), (200, 30)), manager=manager_gui)
+        relative_rect=pygame.Rect((300, 110), (200, 30)), manager=manager_gui)
 
     entryline_passsword = pygame_gui.elements.ui_text_entry_line.UITextEntryLine(
-        relative_rect=pygame.Rect((200, 159), (200, 30)), manager=manager_gui)
+        relative_rect=pygame.Rect((300, 159), (200, 30)), manager=manager_gui)
 
     while running:
         time_delta = clock.tick(60) / 1000
@@ -305,8 +309,9 @@ def loggining():
 
         manager_gui.update(time_delta)
         screen.blit(background, (0, 0))
-        screen.blit(name_label, (80, 100))
-        screen.blit(password_label, (30, 150))
+        screen.blit(logo, (230, 350))
+        screen.blit(name_label, (220, 108))
+        screen.blit(password_label, (183, 160))
         screen.blit(registration_label, (width / 2 - 50, 30))
         if condition_label:
             if PasswordError_label:
@@ -320,7 +325,7 @@ def loggining():
                     (255, 0, 0)), (10, 332))
             screen.blit(condition_label, (10, 297))
         if complited:
-            screen.blit(complit_logging, (screen.get_width() // 2 - 40, 280))
+            screen.blit(complit_logging, (190, 255))
             manager_gui.draw_ui(screen)
             pygame.display.flip()
             pygame.time.delay(2000)
@@ -338,7 +343,7 @@ def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
     x_gameOver, y_gameOver = (-450, 0)
-    fon, v, clock = pygame.image.load('data/background.jpg'), 10, pygame.time.Clock()
+    fon, v, clock = pygame.image.load('data/background1.jpg'), 10, pygame.time.Clock()
     font = pygame.font.Font(None, 25)
     start = True
 
@@ -384,7 +389,7 @@ def main():
             player_group.update(player.rect.x, player.rect.y, 'down')
         if hp[0] > 0:
             screen.blit(
-                pygame.transform.scale(pygame.image.load('data/background.jpg'), size),
+                pygame.transform.scale(pygame.image.load('data/background1.jpg'), size),
                 (0, 0))
 
             camera.update(player)
@@ -475,7 +480,7 @@ class Menu:
         item = 0
         while done:
             # screen.fill("#fdc294")
-            fon = pygame.transform.scale(pygame.image.load('data/background.jpg'), (size))
+            fon = pygame.transform.scale(pygame.image.load('data/background1.jpg'), (size))
             screen.blit(fon, (0, 0))
             if game_sounding[0]:
                 sound = pygame.transform.scale(pygame.image.load('data/sound.png'), (50, 50))

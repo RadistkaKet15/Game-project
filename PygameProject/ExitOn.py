@@ -22,7 +22,7 @@ coin_kolvo_mustClaim, find_the_exit = [0], [False]
 font_helping_card, color_helping_card = pygame.font.Font('purisa-boldoblique.ttf',
                                                          30), pygame.Color('white')
 hero = 1
-
+name_polzovyatel = ['']
 ALPH_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ALPH_LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
 ALPH_DIGITS = '0123456789'
@@ -97,11 +97,13 @@ class PasswordError(BaseException):
     pass
 
 
+con = sqlite3.connect('Users_Base.db')
+cur = con.cursor()
+
+
 def registration():
     manager_gui = pygame_gui.UIManager(size)
     clock = pygame.time.Clock()
-    con = sqlite3.connect('Users_Base.db')
-    cur = con.cursor()
     screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
     background, complit_regist = pygame.transform.scale(
         pygame.image.load('data/background1.jpg'), (size)), \
@@ -205,6 +207,7 @@ def registration():
             screen.blit(complit_regist, (210, 255))
             manager_gui.draw_ui(screen)
             pygame.display.flip()
+            name_polzovyatel[0] = entryline_name.text
             pygame.time.delay(2000)
             return
         manager_gui.draw_ui(screen)
@@ -329,6 +332,7 @@ def loggining():
             pygame.display.flip()
             pygame.time.delay(2000)
             running = False
+            name_polzovyatel[0] = entryline_name.text
             return
         manager_gui.draw_ui(screen)
         pygame.display.flip()
@@ -701,7 +705,7 @@ def store():
     screen.blit(product2, (360, 150))
     text = font.render(
         f"Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}; Time: {time}",
-        True, (100, 255, 100))   # из бд значения надо взять
+        True, (100, 255, 100))  # из бд значения надо взять
     buy_button1 = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((80, 320), (170, 40)),
         manager=manager_gui, text='buy')
@@ -875,6 +879,10 @@ class Player(pygame.sprite.Sprite):
             coin_kolvo_claim[0] += 1
             if coin_kolvo_mustClaim[0] == coin_kolvo_claim[0]:
                 find_the_exit[0] = True
+            cur.execute(f"""UPDATE USERS
+                                       SET AllCurrency = AllCurrency + 1
+                                       WHERE Name = '{name_polzovyatel[0]}'""")
+            con.commit()
         if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= \
                 coin_kolvo_mustClaim[0] and lose_game[0] is False:
             running[0] = False
@@ -1042,4 +1050,3 @@ tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/pit1.png'
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_7.txt'))
 main()
-

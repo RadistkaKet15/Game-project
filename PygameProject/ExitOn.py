@@ -440,20 +440,50 @@ def main():
                 game_over_sound.play()
             screen.blit(game_over, (x_gameOver, y_gameOver))
             lose_game[0] = True
+            Game_over()
             if x_gameOver >= 0:
                 x_gameOver = x_gameOver
             else:
                 x_gameOver += clock.tick() * 75 / 350
-            Game_over()
         manager.update(ticking)
         manager.draw_ui(screen)
         pygame.display.flip()
 
 
 def Game_over():
-    # fon = pygame.transform.scale(pygame.image.load('data/background1.jpg'), (size))
-    # screen.blit(fon, (0, 0))
-    game = Menu(items)
+    done = True
+    clock = pygame.time.Clock()
+    manager_gui = pygame_gui.UIManager(size)
+    fon = pygame.transform.scale(pygame.image.load('data/background2.jpg'), (size))
+    text = font_menu.render(
+        f"!scored {sum(coin_kolvo_claim)} points!",
+        True, (255, 255, 0))
+    menu_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((325, 210), (150, 50)),
+        manager=manager_gui, text='menu')
+    exit_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((340, 320), (170, 40)),
+        manager=manager_gui, text='exit')
+    # while done:
+    #     time_delta = clock.tick(60) / 1000
+    #     for event in pygame.event.get():
+    #         keys = pygame.key.get_pressed()
+    #         if event.type == pygame.QUIT:
+    #             terminate()
+    #         if event.type == pygame.USEREVENT:
+    #             if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
+    #                     event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+    #                 if event.ui_element == menu_button:
+    #                     Menu()
+    #                 if event.ui_element == exit_button:
+    #                     terminate()
+    #         manager_gui.process_events(event)
+    # manager_gui.update(time_delta)
+    manager_gui.draw_ui(screen)
+    screen.blit(fon, (0, 0))
+    screen.blit(text, (250, 150))
+    pygame.display.flip()
+    # game = Menu(items)
 
 
 def terminate():
@@ -660,14 +690,23 @@ def options():
 
 def store():
     done = True
+    time = 15
     manager_gui = pygame_gui.UIManager(size)
     clock = pygame.time.Clock()
     pygame.display.set_caption('Store')
     screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
     product1 = pygame.transform.scale(pygame.image.load('data/shield1.png'), (140, 190))
+    product2 = pygame.transform.scale(pygame.image.load('data/clock.png'), (120, 150))
     screen.blit(product1, (100, 150))
-    buy_button = pygame_gui.elements.UIButton(
+    screen.blit(product2, (360, 150))
+    text = font.render(
+        f"Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}; Time: {time}",
+        True, (100, 255, 100))   # из бд значения надо взять
+    buy_button1 = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((80, 320), (170, 40)),
+        manager=manager_gui, text='buy')
+    buy_button2 = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((340, 320), (170, 40)),
         manager=manager_gui, text='buy')
     while done:
         time_delta = clock.tick(60) / 1000
@@ -678,11 +717,14 @@ def store():
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
                         event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                    if event.ui_element == buy_button:
-                        pass
+                    if event.ui_element == buy_button1:
+                        shields_kolvo[0] += 1
+                    if event.ui_element == buy_button2:
+                        time += 15
             manager_gui.process_events(event)
             if keys[pygame.K_ESCAPE]:
                 return
+        screen.blit(text, (10, 10))
         manager_gui.update(time_delta)
         screen.blit(font_menu.render('Catalog', 1, (255, 255, 0)), (340, 50))
         manager_gui.draw_ui(screen)

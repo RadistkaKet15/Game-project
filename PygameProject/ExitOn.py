@@ -2,7 +2,6 @@ import os
 import sys
 import pygame
 import pygame_gui
-import random
 import sqlite3
 
 pygame.init()
@@ -445,9 +444,16 @@ def main():
                 x_gameOver = x_gameOver
             else:
                 x_gameOver += clock.tick() * 75 / 350
+            Game_over()
         manager.update(ticking)
         manager.draw_ui(screen)
         pygame.display.flip()
+
+
+def Game_over():
+    # fon = pygame.transform.scale(pygame.image.load('data/background1.jpg'), (size))
+    # screen.blit(fon, (0, 0))
+    game = Menu(items)
 
 
 def terminate():
@@ -489,7 +495,7 @@ class Menu:
             screen.blit(sound, (700, 30))
             mp = pygame.mouse.get_pos()
             for i in self.items:
-                if mp[0] > i[0] and mp[0] < i[0] + 200 and mp[1] > i[1] and mp[1] < i[1] + 50:
+                if i[0] < mp[0] < i[0] + 200 and i[1] < mp[1] < i[1] + 50:
                     item = i[5]
                 if 700 < mp[0] < 750 and 30 < mp[1] < 80:
                     item = 3
@@ -536,14 +542,17 @@ class Menu:
                     if item == 4:
                         options()
                         pygame.display.set_caption('ExitOn')
+                    if item == 5:
+                        store()
             screen.blit(screen, (0, 0))
             pygame.display.flip()
 
 
-items = [(340, 110, 'Play', (255, 255, 255), (255, 255, 0), 0),
-         (340, 200, 'Help', (255, 255, 255), (255, 255, 0), 1),
-         (290, 290, 'Options', (255, 255, 255), (255, 255, 0), 4),
-         (340, 380, 'Exit', (255, 255, 255), (255, 255, 0), 2)]
+items = [(340, 85, 'Play', (255, 255, 255), (255, 255, 0), 0),
+         (340, 175, 'Help', (255, 255, 255), (255, 255, 0), 1),
+         (290, 265, 'Options', (255, 255, 255), (255, 255, 0), 4),
+         (315, 355, 'Store', (255, 255, 255), (255, 255, 0), 5),
+         (340, 445, 'Exit', (255, 255, 255), (255, 255, 0), 2)]
 game = Menu(items)
 
 
@@ -553,7 +562,7 @@ def help():
 
     while done:
         pygame.display.set_caption('Help')
-        fon = pygame.transform.scale(pygame.image.load('data/background_for_game.jpg'), (size))
+        fon = pygame.transform.scale(pygame.image.load('data/background2.jpg'), (size))
         screen.blit(fon, (0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -592,7 +601,7 @@ def options():
     global hero
     while done:
         pygame.display.set_caption('Options')
-        screen.blit(pygame.image.load('data/background_for_game.jpg'), (0, 0))
+        screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
         player1 = pygame.transform.scale(pygame.image.load('data/robber.png'), (150, 150))
         screen.blit(player1, (200, 200))
         player2 = pygame.transform.scale(pygame.image.load('data/men.png'), (150, 150))
@@ -646,6 +655,37 @@ def options():
             pygame.draw.rect(screen, (255, 0, 0), (420, 160, 210, 220), 4)
         screen.blit(font_menu.render('Apply', 1, (255, 255, 255)), (350, 450))
         screen.blit(font_menu.render('Choose your hero...', 1, (255, 255, 255)), (220, 50))
+        pygame.display.flip()
+
+
+def store():
+    done = True
+    manager_gui = pygame_gui.UIManager(size)
+    clock = pygame.time.Clock()
+    pygame.display.set_caption('Store')
+    screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
+    product1 = pygame.transform.scale(pygame.image.load('data/shield1.png'), (140, 190))
+    screen.blit(product1, (100, 150))
+    buy_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((80, 320), (170, 40)),
+        manager=manager_gui, text='buy')
+    while done:
+        time_delta = clock.tick(60) / 1000
+        for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
+            if event.type == pygame.QUIT:
+                done = False
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
+                        event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    if event.ui_element == buy_button:
+                        pass
+            manager_gui.process_events(event)
+            if keys[pygame.K_ESCAPE]:
+                return
+        manager_gui.update(time_delta)
+        screen.blit(font_menu.render('Catalog', 1, (255, 255, 0)), (340, 50))
+        manager_gui.draw_ui(screen)
         pygame.display.flip()
 
 

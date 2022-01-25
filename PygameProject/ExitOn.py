@@ -49,7 +49,7 @@ player_image = pygame.transform.scale(pygame.image.load('data/robber.png'), (120
 game_over = pygame.transform.scale(pygame.image.load('data/Game-Over.jpg'), (size))
 
 player = None
-
+points_for_play = [0]
 font_menu = pygame.font.SysFont('Comic Sans MS', 40)
 
 manager = pygame_gui.UIManager(size)
@@ -67,7 +67,7 @@ shield_group = pygame.sprite.Group()
 pila_group_right_side = pygame.sprite.Group()
 pila_group_left_side = pygame.sprite.Group()
 health_group = pygame.sprite.Group()
-hp, coin_kolvo_claim, shields_kolvo = [100], [0], [0]
+hp, coin_kolvo_claim = [100], [0]
 lose_game = [False]
 
 
@@ -83,8 +83,8 @@ def cleaning_group_of_sprites():
     pila_group_right_side.empty()
     pila_group_left_side.empty()
     health_group.empty()
-    running[0], hp[0], coin_kolvo_claim[0], shields_kolvo[0], coin_kolvo_mustClaim[
-        0] = True, 100, 0, 0, 0
+    running[0], hp[0], coin_kolvo_claim[0], coin_kolvo_mustClaim[
+        0] = True, 100, 0, 0
     moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
     if game_sounding[0] is True:
         pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
@@ -354,7 +354,8 @@ def main():
         # pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
         text = font.render(
-            f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+            f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; '
+            f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
             True, (100, 255, 100))
         keys = pygame.key.get_pressed()
         for event in pygame.event.get():
@@ -426,15 +427,15 @@ def main():
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('red'))
             elif hp[0] <= 50:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('orange'))
             elif hp[0] <= 75:
                 text = font.render(
-                    f"Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}",
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)
@@ -460,7 +461,7 @@ def Game_over():
     manager_gui = pygame_gui.UIManager(size)
     fon = pygame.transform.scale(pygame.image.load('data/background2.jpg'), (size))
     text = font_menu.render(
-        f"!scored {sum(coin_kolvo_claim)} points!",
+        f"!scored {points_for_play[0]} points!",
         True, (255, 255, 0))
     menu_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((325, 210), (150, 50)),
@@ -704,7 +705,8 @@ def store():
     screen.blit(product1, (100, 150))
     screen.blit(product2, (360, 150))
     text = font.render(
-        f"Currency: {coin_kolvo_claim[0]}; Shields: {shields_kolvo[0]}; Time: {time}",
+        f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
+        f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; Time: {time}',
         True, (100, 255, 100))  # из бд значения надо взять
     buy_button1 = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((80, 320), (170, 40)),
@@ -722,12 +724,29 @@ def store():
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
                         event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
                     if event.ui_element == buy_button1:
-                        shields_kolvo[0] += 1
+                        if list(cur.execute(f"""SELECT AllCurrency FROM USERS
+                                        WHERE Name = '{name_polzovyatel[0]}'"""))[0][0] - 3 >= 0:
+                            cur.execute(f"""UPDATE USERS
+                                            SET ShieldsKolvo = ShieldsKolvo + 1
+                                            WHERE Name = '{name_polzovyatel[0]}'""")
+                            cur.execute(f"""UPDATE USERS
+                                            SET AllCurrency = AllCurrency - 3
+                                            WHERE Name = '{name_polzovyatel[0]}'""")
+                            con.commit()
+                            text = font.render(
+                                f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
+                                f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; Time: {time}',
+                                True, (100, 255, 100))
+                        else:
+                            print('Error!')
                     if event.ui_element == buy_button2:
                         time += 15
             manager_gui.process_events(event)
             if keys[pygame.K_ESCAPE]:
                 return
+        screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
+        screen.blit(product1, (100, 150))
+        screen.blit(product2, (360, 150))
         screen.blit(text, (10, 10))
         manager_gui.update(time_delta)
         screen.blit(font_menu.render('Catalog', 1, (255, 255, 0)), (340, 50))
@@ -865,14 +884,19 @@ class Player(pygame.sprite.Sprite):
             elif napravlenie == 'up':
                 player.rect.y += 8
         if pygame.sprite.spritecollide(self, capcans_group, True):
-            if shields_kolvo[0] == 0:
+            if list(cur.execute(
+                    f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[
+                0][0] == 0:
                 if game_sounding[0] is True:
                     capcan_sound.play()
                 hp[0] -= 10
             else:
                 if game_sounding[0] is True:
                     shield_cancel.play()
-                shields_kolvo[0] -= 1
+                cur.execute(f"""UPDATE USERS
+                                SET ShieldsKolvo = ShieldsKolvo - 1
+                                WHERE Name = '{name_polzovyatel[0]}'""")
+                con.commit()
         if pygame.sprite.spritecollide(self, coins_group, True):
             if game_sounding[0] is True:
                 coin_claim.play()
@@ -883,6 +907,7 @@ class Player(pygame.sprite.Sprite):
                                        SET AllCurrency = AllCurrency + 1
                                        WHERE Name = '{name_polzovyatel[0]}'""")
             con.commit()
+            points_for_play[0] += 1
         if pygame.sprite.spritecollide(self, pit_group, False) and coin_kolvo_claim[0] >= \
                 coin_kolvo_mustClaim[0] and lose_game[0] is False:
             running[0] = False
@@ -890,7 +915,10 @@ class Player(pygame.sprite.Sprite):
             if game_sounding[0] is True:
                 nextLevel_sound.play()
         if pygame.sprite.spritecollide(self, shield_group, True):
-            shields_kolvo[0] += 1
+            cur.execute(f"""UPDATE USERS
+                                                   SET ShieldsKolvo = ShieldsKolvo + 1
+                                                   WHERE Name = '{name_polzovyatel[0]}'""")
+            con.commit()
             if game_sounding[0] is True:
                 shield_claim.play()
         if pygame.sprite.spritecollide(self, health_group, True):

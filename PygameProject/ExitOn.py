@@ -90,7 +90,8 @@ def cleaning_group_of_sprites():
         pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
         pygame.mixer.music.set_volume(0.7)
         pygame.mixer.music.play(-1)
-    counter[0] = 15
+    counter[0] = \
+        list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]
 
 
 class PasswordError(BaseException):
@@ -336,10 +337,6 @@ def loggining():
         pygame.display.flip()
 
 
-counter = [15]
-timer_event = pygame.USEREVENT + 1
-
-
 def main():
     pygame.display.set_caption('ExitOn')
     camera = Camera()
@@ -409,7 +406,7 @@ def main():
                 screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
                 screen.blit(time_text, (width - 90, 10))
                 if find_the_exit[0] is True:
-                    pygame.time.set_timer(timer_event, list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0] * 100)
+                    pygame.time.set_timer(timer_event, 1000)
                     if game_sounding[0] is True:
                         pygame.mixer.music.load('sounds/Find_the_exit.mp3')
                         pygame.mixer.music.set_volume(0.7)
@@ -586,6 +583,7 @@ class Menu:
                         store()
             screen.blit(screen, (0, 0))
             pygame.display.flip()
+
 
 items = [(340, 85, 'Play', (255, 255, 255), (255, 255, 0), 0),
          (340, 175, 'Help', (255, 255, 255), (255, 255, 0), 1),
@@ -1026,6 +1024,9 @@ class Camera:
 
 
 registration()
+counter = [
+    list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]]
+timer_event = pygame.USEREVENT + 1
 while play_game[0] is False:
     game.menu()
 player, level_x, level_y = generate_level(load_level('level_1.txt'))

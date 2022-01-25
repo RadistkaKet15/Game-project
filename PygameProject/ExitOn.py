@@ -26,7 +26,7 @@ name_polzovyatel = ['']
 ALPH_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 ALPH_LOWERCASE = 'abcdefghijklmnopqrstuvwxyz'
 ALPH_DIGITS = '0123456789'
-
+play_game = [False]
 size = width, height = (800, 600)
 screen, running, clock = pygame.display.set_mode(size), [True], pygame.time.Clock()
 tile_images = {
@@ -138,8 +138,7 @@ def registration():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.USEREVENT:
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
-                        event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     PasswordError_label = None
                     if event.ui_element == regist_button or event.ui_element == entryline_name \
                             or event.ui_element == entryline_passsword:
@@ -268,8 +267,7 @@ def loggining():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.USEREVENT:
-                if event.user_type == pygame_gui.UI_BUTTON_PRESSED or \
-                        event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     PasswordError_label = None
                     if event.ui_element == log_in_button or event.ui_element == entryline_name \
                             or event.ui_element == entryline_passsword:
@@ -445,9 +443,9 @@ def main():
                 game_over_sound.play()
             screen.blit(game_over, (x_gameOver, y_gameOver))
             lose_game[0] = True
-            Game_over()
             if x_gameOver >= 0:
                 x_gameOver = x_gameOver
+                Game_over()
             else:
                 x_gameOver += clock.tick() * 75 / 350
         manager.update(ticking)
@@ -556,6 +554,7 @@ class Menu:
                             terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if item == 0:
+                        play_game[0] = True
                         return
                     if item == 1:
                         help()
@@ -1001,8 +1000,8 @@ class Camera:
 
 
 registration()
-game.menu()
-game.menu()
+while play_game[0] is False:
+    game.menu()
 player, level_x, level_y = generate_level(load_level('level_1.txt'))
 main()
 tile_images['empty'] = pygame.transform.scale(pygame.image.load('data/grass4.png'),

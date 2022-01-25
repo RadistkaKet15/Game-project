@@ -409,7 +409,7 @@ def main():
                 screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
                 screen.blit(time_text, (width - 90, 10))
                 if find_the_exit[0] is True:
-                    pygame.time.set_timer(timer_event, 1500)
+                    pygame.time.set_timer(timer_event, list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0] * 100)
                     if game_sounding[0] is True:
                         pygame.mixer.music.load('sounds/Find_the_exit.mp3')
                         pygame.mixer.music.set_volume(0.7)
@@ -524,14 +524,15 @@ class Menu:
             if game_sounding[0]:
                 sound = pygame.transform.scale(pygame.image.load('data/sound.png'), (50, 50))
             else:
-                sound = pygame.transform.scale(pygame.image.load('data/sound-off.png'), (50, 50))
+                sound = pygame.transform.scale(pygame.image.load('data/sound-off.png'),
+                                               (50, 50))
             screen.blit(sound, (700, 30))
             mp = pygame.mouse.get_pos()
             for i in self.items:
                 if i[0] < mp[0] < i[0] + 200 and i[1] < mp[1] < i[1] + 50:
                     item = i[5]
                 if 700 < mp[0] < 750 and 30 < mp[1] < 80:
-                    item = 3
+                    item = 5
             self.render(screen, font_menu, item)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -550,21 +551,26 @@ class Menu:
                             return
                         if item == 1:
                             help()
-                        if item == 2:
+                        if item == 4:
                             terminate()
+                        if item == 2:
+                            options()
+                        if item == 3:
+                            store()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if item == 0:
                         play_game[0] = True
                         return
                     if item == 1:
                         help()
-                    if item == 2:
+                    if item == 4:
                         terminate()
-                    if item == 3:
+                    if item == 5:
                         if game_sounding[0] is True:
                             pygame.mixer.music.pause()
-                            sound = pygame.transform.scale(pygame.image.load('data/sound-off.png'),
-                                                           (50, 50))
+                            sound = pygame.transform.scale(
+                                pygame.image.load('data/sound-off.png'),
+                                (50, 50))
                             screen.blit(sound, (700, 30))
                             game_sounding[0] = False
                         else:
@@ -573,20 +579,19 @@ class Menu:
                                                            (50, 50))
                             screen.blit(sound, (700, 30))
                             game_sounding[0] = True
-                    if item == 4:
+                    if item == 2:
                         options()
                         pygame.display.set_caption('ExitOn')
-                    if item == 5:
+                    if item == 3:
                         store()
             screen.blit(screen, (0, 0))
             pygame.display.flip()
 
-
 items = [(340, 85, 'Play', (255, 255, 255), (255, 255, 0), 0),
          (340, 175, 'Help', (255, 255, 255), (255, 255, 0), 1),
-         (290, 265, 'Options', (255, 255, 255), (255, 255, 0), 4),
-         (315, 355, 'Store', (255, 255, 255), (255, 255, 0), 5),
-         (340, 445, 'Exit', (255, 255, 255), (255, 255, 0), 2)]
+         (290, 265, 'Options', (255, 255, 255), (255, 255, 0), 2),
+         (315, 355, 'Store', (255, 255, 255), (255, 255, 0), 3),
+         (340, 445, 'Exit', (255, 255, 255), (255, 255, 0), 4)]
 game = Menu(items)
 
 
@@ -705,8 +710,10 @@ def store():
     screen.blit(product2, (360, 150))
     text = font.render(
         f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
-        f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; Time: {time}',
-        True, (100, 255, 100))  # из бд значения надо взять
+        f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]};'
+        f'Time: {list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
+        True, (100, 255, 100))
+    text_error = font.render('', True, (255, 0, 0))
     buy_button1 = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((80, 320), (170, 40)),
         manager=manager_gui, text='buy')
@@ -734,12 +741,30 @@ def store():
                             con.commit()
                             text = font.render(
                                 f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
-                                f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; Time: {time}',
+                                f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
+                                f'Time: {list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                                 True, (100, 255, 100))
+                            text_error = font.render('', True, (255, 0, 0))
                         else:
-                            print('Error!')
+                            text_error = font.render('Insufficient fund', True, (255, 0, 0))
                     if event.ui_element == buy_button2:
-                        time += 15
+                        if list(cur.execute(f"""SELECT AllCurrency FROM USERS
+                                        WHERE Name = '{name_polzovyatel[0]}'"""))[0][0] - 5 >= 0:
+                            cur.execute(f"""UPDATE USERS
+                                            SET Time = Time + 5
+                                            WHERE Name = '{name_polzovyatel[0]}'""")
+                            cur.execute(f"""UPDATE USERS
+                                            SET AllCurrency = AllCurrency - 5
+                                            WHERE Name = '{name_polzovyatel[0]}'""")
+                            con.commit()
+                            text = font.render(
+                                f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
+                                f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
+                                f'Time: {list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
+                                True, (100, 255, 100))
+                            text_error = font.render('', True, (255, 0, 0))
+                        else:
+                            text_error = font.render('Insufficient fund', True, (255, 0, 0))
             manager_gui.process_events(event)
             if keys[pygame.K_ESCAPE]:
                 return
@@ -747,6 +772,7 @@ def store():
         screen.blit(product1, (100, 150))
         screen.blit(product2, (360, 150))
         screen.blit(text, (10, 10))
+        screen.blit(text_error, (300, 400))
         manager_gui.update(time_delta)
         screen.blit(font_menu.render('Catalog', 1, (255, 255, 0)), (340, 50))
         manager_gui.draw_ui(screen)

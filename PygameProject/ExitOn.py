@@ -697,7 +697,7 @@ def store():
     screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
     product1 = pygame.transform.scale(pygame.image.load('data/shield1.png'), (140, 190))
     product2 = pygame.transform.scale(pygame.image.load('data/clock.png'), (120, 150))
-    product3 = pygame.transform.scale(pygame.image.load('data/hp.png'), (170, 200))
+    product3 = pygame.transform.scale(pygame.image.load('data/hp.png'), (150, 150))
     logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
     text = font.render(
         f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
@@ -791,7 +791,7 @@ def store():
         screen.blit(pygame.image.load('data/background2.jpg'), (0, 0))
         screen.blit(product1, (100, 150))
         screen.blit(product2, (360, 150))
-        screen.blit(product3, (550, 135))
+        screen.blit(product3, (575, 145))
         screen.blit(text, (10, 10))
         screen.blit(text_error, (200, 400))
         screen.blit(logo, (230, 430))

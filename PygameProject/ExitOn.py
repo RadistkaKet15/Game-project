@@ -1,9 +1,10 @@
-import os
 import sys
 import pygame
 import pygame_gui
 import sqlite3
 
+con = sqlite3.connect('Users_Base.db')
+cur = con.cursor()
 pygame.init()
 icon = pygame.image.load('data/exit_ico.ico')
 pygame.display.set_icon(icon)
@@ -65,7 +66,6 @@ shield_group = pygame.sprite.Group()
 pila_group_right_side = pygame.sprite.Group()
 pila_group_left_side = pygame.sprite.Group()
 health_group = pygame.sprite.Group()
-hp, coin_kolvo_claim = [100], [0]
 lose_game = [False]
 
 
@@ -82,7 +82,9 @@ def cleaning_group_of_sprites():
     pila_group_left_side.empty()
     health_group.empty()
     running[0], hp[0], coin_kolvo_claim[0], coin_kolvo_mustClaim[
-        0] = True, 100, 0, 0
+        0] = True, list(
+        cur.execute(f"""SELECT HealthsPoints FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[
+        0][0], 0, 0
     moving_pila_right_side[0], moving_pila_left_side[0] = 'Right', 'Left'
     if game_sounding[0] is True:
         pygame.mixer.music.load('sounds/BACKGROUND_MUSIC_TEST.mp3')
@@ -96,19 +98,13 @@ class PasswordError(BaseException):
     pass
 
 
-con = sqlite3.connect('Users_Base.db')
-cur = con.cursor()
-
-
 def registration():
     manager_gui = pygame_gui.UIManager(size)
     clock = pygame.time.Clock()
     screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
     background, complit_regist = pygame.transform.scale(
-        pygame.image.load('data/background1.jpg'), (size)), \
-                                 pygame.transform.scale(
-                                     pygame.image.load('data/ok.png'),
-                                     (60, 60))
+        pygame.image.load('data/background1.jpg'), (size)), pygame.transform.scale(
+        pygame.image.load('data/ok.png'), (60, 60))
     logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
     pygame.display.set_caption('Registration')
     font = pygame.font.SysFont('serif', 35)
@@ -232,10 +228,8 @@ def logging():
     cur = con.cursor()
     screen, running, complited, text_size = pygame.display.set_mode(size), True, False, 19
     background, complit_logging = pygame.transform.scale(
-        pygame.image.load('data/background2.jpg'), (size)), \
-                                  pygame.transform.scale(pygame.image.load(
-                                      'data/ok.png'),
-                                      (60, 60))
+        pygame.image.load('data/background2.jpg'), (size)), pygame.transform.scale(
+        pygame.image.load('data/ok.png'), (60, 60))
     logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
 
     pygame.display.set_caption('Sign In')
@@ -344,10 +338,9 @@ def main():
     start = True
 
     while running[0] is True:
-        # pygame.display.set_caption('Level1')
         ticking = clock.tick() * 10 / 100
         text = font.render(
-            f'Your HP: {list(cur.execute(f"""SELECT HealthsPoints FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]};'
+            f'Your HP: {hp[0]};'
             f' Currency: {coin_kolvo_claim[0]}; '
             f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
             True, (100, 255, 100))
@@ -357,7 +350,7 @@ def main():
                 confirmation_dialog = pygame_gui.windows.UIConfirmationDialog(
                     rect=pygame.Rect((250, 200), (300, 200)),
                     manager=manager, window_title='Подтверждение',
-                    action_long_desc='Вы уверены, что хотите выйти?) Весь ваш прогресс сброситься!',
+                    action_long_desc='Вы уверены, что хотите выйти?',
                     action_short_name='OK',
                     blocking=True)
             if event.type == pygame.KEYDOWN:  # если событие нажатие клавиши
@@ -403,7 +396,7 @@ def main():
                 pit_group.draw(screen)
                 pit_group.update()
                 screen.blit(exit_on, (width / 2 - exit_on.get_width() / 2, 30))
-                screen.blit(time_text, (width - 90, 10))
+                screen.blit(time_text, (width - 120, 10))
                 if find_the_exit[0] is True:
                     pygame.time.set_timer(timer_event, 1000)
                     if game_sounding[0] is True:
@@ -421,15 +414,18 @@ def main():
             pygame.draw.rect(screen, pygame.Color('black'), (8, 8, 310, 20))
             if hp[0] <= 25:
                 text = font.render(
-                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; '
+                    f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('red'))
             elif hp[0] <= 50:
                 text = font.render(
-                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; '
+                    f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('orange'))
             elif hp[0] <= 75:
                 text = font.render(
-                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
+                    f'Your HP: {hp[0]}; Currency: {coin_kolvo_claim[0]}; '
+                    f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}',
                     True, pygame.Color('yellow'))
             screen.blit(text, (10, 10))
             clock.tick(100)
@@ -452,11 +448,11 @@ def main():
 def func_game_over():
     manager_gui = pygame_gui.UIManager(size)
     clock = pygame.time.Clock()
-    screen, running  = pygame.display.set_mode(size), True
+    screen, running = pygame.display.set_mode(size), True
     background = pygame.transform.scale(pygame.image.load('data/background2.jpg'), (size))
     logo = pygame.transform.scale(pygame.image.load('data/ExitOn!.png'), (350, 100))
     text = font_menu.render(
-             f"!scored {points_for_play[0]} points!", True, (255, 255, 0))
+        f"!scored {points_for_play[0]} points!", True, (255, 255, 0))
     pygame.display.set_caption('Game Over')
     font = pygame.font.SysFont('serif', 35)
     font1 = pygame.font.SysFont('serif', 25)
@@ -741,15 +737,18 @@ def store():
                             text = font.render(
                                 f'Currency: {list(cur.execute(f"""SELECT AllCurrency FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
                                 f'Shields: {list(cur.execute(f"""SELECT ShieldsKolvo FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
-                                f'Time: {list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; ' 
+                                f'Time: {list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; '
                                 f'HP: {list(cur.execute(f"""SELECT HealthsPoints FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]}; ',
                                 True, (255, 255, 255))
                             text_error = font.render('', True, (255, 0, 0))
                         else:
-                            text_error = font.render('Insufficient fund', True, (255, 0, 0))
+                            text_error = font.render('Insufficient funds', True, (255, 0, 0))
                     if event.ui_element == buy_button2:
                         if list(cur.execute(f"""SELECT AllCurrency FROM USERS
-                                        WHERE Name = '{name_polzovyatel[0]}'"""))[0][0] - 5 >= 0:
+                                        WHERE Name = '{name_polzovyatel[0]}'"""))[0][0] - 5 >= 0 \
+                                and list(cur.execute(
+                            f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[
+                            0][0] < 100:
                             cur.execute(f"""UPDATE USERS
                                             SET Time = Time + 5
                                             WHERE Name = '{name_polzovyatel[0]}'""")
@@ -765,7 +764,8 @@ def store():
                                 True, (255, 255, 255))
                             text_error = font.render('', True, (255, 0, 0))
                         else:
-                            text_error = font.render('Insufficient fund', True, (255, 0, 0))
+                            text_error = font.render('Insufficient fund or you have a limit!', True,
+                                                     (255, 0, 0))
                     if event.ui_element == buy_button3:
                         if list(cur.execute(f"""SELECT AllCurrency FROM USERS
                                         WHERE Name = '{name_polzovyatel[0]}'"""))[0][0] - 5 >= 0:
@@ -793,7 +793,7 @@ def store():
         screen.blit(product2, (360, 150))
         screen.blit(product3, (550, 135))
         screen.blit(text, (10, 10))
-        screen.blit(text_error, (300, 400))
+        screen.blit(text_error, (200, 400))
         screen.blit(logo, (230, 430))
         manager_gui.update(time_delta)
         screen.blit(font_menu.render('Catalog', 1, (255, 255, 0)), (340, 50))
@@ -969,7 +969,9 @@ class Player(pygame.sprite.Sprite):
                 shield_claim.play()
         if pygame.sprite.spritecollide(self, health_group, True):
             if lose_game[0] is False:
-                hp[0] = 100
+                hp[0] = list(cur.execute(
+                    f"""SELECT HealthsPoints FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[
+                    0][0]
 
 
 class AnimatedSprites(pygame.sprite.Sprite):
@@ -1047,6 +1049,9 @@ class Camera:
 
 
 registration()
+hp, coin_kolvo_claim = [list(
+    cur.execute(f"""SELECT HealthsPoints FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][
+                            0]], [0]
 counter = [
     list(cur.execute(f"""SELECT Time FROM USERS WHERE Name = "{name_polzovyatel[0]}" """))[0][0]]
 timer_event = pygame.USEREVENT + 1
@@ -1127,3 +1132,4 @@ tile_images['capcan'] = pygame.transform.scale(pygame.image.load('data/pit1.png'
 cleaning_group_of_sprites()
 player, level_x, level_y = generate_level(load_level('level_7.txt'))
 main()
+func_game_over()
